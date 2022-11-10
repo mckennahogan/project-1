@@ -1,0 +1,9 @@
+---
+title: "Exploratory"
+author: "McKenna Hogan"
+date: '2022-11-10'
+output: pdf_document
+---
+
+```{r exploratory data}
+```
