@@ -4,8 +4,14 @@ author: "McKenna, Jorie, and Caedon"
 date: '2022-11-10'
 output: pdf_document
 ---
-
+```{r libraries}
+library(tidyverse)
+library(knitr)
+```
 
 ```{r exploratory data}
-
+diab.data1<- read_csv("~/STAT400/Project 1/data/diabetes_012_health_indicators_BRFSS2015.csv")
+diab.data2<- 
+  read_csv("~/STAT400/Project 1/data/diabetes_binary_5050split_health_indicators_BRFSS2015.csv")
+diab.data3<- read_csv("~/STAT400/Project 1/data/diabetes_binary_health_indicators_BRFSS2015.csv")
 ```
