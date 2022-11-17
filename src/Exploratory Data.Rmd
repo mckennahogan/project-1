@@ -9,9 +9,123 @@ library(tidyverse)
 library(knitr)
 ```
 
+
 ```{r exploratory data}
+#skewed data
 diab.data1<- read_csv("~/STAT400/Project 1/data/diabetes_012_health_indicators_BRFSS2015.csv")
+#unskewed data
 diab.data2<- 
   read_csv("~/STAT400/Project 1/data/diabetes_binary_5050split_health_indicators_BRFSS2015.csv")
 diab.data3<- read_csv("~/STAT400/Project 1/data/diabetes_binary_health_indicators_BRFSS2015.csv")
+
+nodiab.only.1<-diab.data1|>
+  filter(Diabetes_012==0)
+prediab.only.1<-diab.data1|>
+  filter(Diabetes_012==1)
+diab.only.1<-diab.data1|>
+  filter(Diabetes_012==2)
 ```
+
+```{r EDA}
+### histograms!!!
+ggplot(diab.data1)+
+  geom_histogram(aes(Diabetes_012),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+#not much difference
+ggplot(diab.data1)+
+  geom_histogram(aes(HighBP),fill="Coral4")+
+  facet_wrap(~Diabetes_012) 
+#not much difference
+ggplot(diab.data1)+
+  geom_histogram(aes(HighChol),fill="Coral4") +
+  facet_wrap(~Diabetes_012)
+ggplot(diab.data1)+
+  geom_histogram(aes(CholCheck),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+#not binary
+ggplot(diab.data1)+
+  geom_histogram(aes(BMI),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+#not much difference
+ggplot(diab.data1)+
+  geom_histogram(aes(Smoker),fill="Coral4") +
+  facet_wrap(~Diabetes_012)
+ggplot(diab.data1)+
+  geom_histogram(aes(HeartDiseaseorAttack),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+ggplot(diab.data1)+
+  geom_histogram(aes(PhysActivity),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+ggplot(diab.data1)+
+  geom_histogram(aes(Fruits),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+ggplot(diab.data1)+
+  geom_histogram(aes(Veggies),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+ggplot(diab.data1)+
+  geom_histogram(aes(HvyAlcoholConsump),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+ggplot(diab.data1)+
+  geom_histogram(aes(AnyHealthcare),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+ggplot(diab.data1)+
+  geom_histogram(aes(NoDocbcCost),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+#not binary
+ggplot(diab.data1)+
+  geom_histogram(aes(GenHlth),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+#not binary
+ggplot(diab.data1)+
+  geom_histogram(aes(MentHlth),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+#not binary
+ggplot(diab.data1)+
+  geom_histogram(aes(PhysHlth),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+ggplot(diab.data1)+
+  geom_histogram(aes(DiffWalk),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+#not much difference
+ggplot(diab.data1)+
+  geom_histogram(aes(Sex),fill="Coral4") +
+  facet_wrap(~Diabetes_012)
+#not binary
+ggplot(diab.data1)+
+  geom_histogram(aes(Age),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+#not binary
+ggplot(diab.data1)+
+  geom_histogram(aes(Education),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+#not binary
+ggplot(diab.data1)+
+  geom_histogram(aes(Income),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+
+### boxplots for nonbinary
+ggplot(diab.data1)+
+  geom_boxplot(aes(BMI),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+ggplot(diab.data1)+
+  geom_boxplot(aes(MentHlth),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+ggplot(diab.data1)+
+  geom_boxplot(aes(PhysHlth),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+ggplot(diab.data1)+
+  geom_boxplot(aes(Age),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+ggplot(diab.data1)+
+  geom_boxplot(aes(Education),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+ggplot(diab.data1)+
+  geom_boxplot(aes(Income),fill="Coral4")+
+  facet_wrap(~Diabetes_012)
+
+```
+via boxplots can see some shifts in:
+maybe BMI
+PhysHlth
+Age
+surprisingly Income
