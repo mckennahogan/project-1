@@ -124,6 +124,15 @@ ggplot(diab.data1)+
   facet_wrap(~Diabetes_012)
 
 ```
+```{r tables}
+Row1<-colMeans(nodiab.only.1)
+Row2<-colMeans(prediab.only.1)
+Row3<-colMeans(diab.only.1)
+table<-rbind(Row1,Row2,Row3)
+rownames(table)<-c("no diabetes","prediabetes","diabetes")
+kable(table,align="c",digits=3)
+
+```
 via boxplots can see some shifts in:
 maybe BMI
 PhysHlth
