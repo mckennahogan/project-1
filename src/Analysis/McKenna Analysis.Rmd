@@ -1,0 +1,68 @@
+---
+title: "McKenna Analysis - Percentile and Basic "
+author: "McKenna Hogan"
+date: '2022-11-17'
+output: pdf_document
+---
+
+```{r libraries}
+library(tidyverse)
+library(knitr)
+library(dplyr)
+```
+
+```{r data}
+#skewed data
+diab.data1<- read_csv("~/STAT400/Project 1/data/diabetes_012_health_indicators_BRFSS2015.csv")
+#unskewed data
+diab.data2<- 
+  read_csv("~/STAT400/Project 1/data/diabetes_binary_5050split_health_indicators_BRFSS2015.csv")
+diab.data3<- read_csv("~/STAT400/Project 1/data/diabetes_binary_health_indicators_BRFSS2015.csv")
+
+nodiab.only.1<-diab.data1|>
+  filter(Diabetes_012==0)|>
+  select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
+prediab.only.1<-diab.data1|>
+  filter(Diabetes_012==1)|>
+  select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
+diab.only.1<-diab.data1|>
+  filter(Diabetes_012==2)|>
+  select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
+```
+
+```{r}
+#income, bmi, genhealth, bp, anyhealthcare
+
+# set up the bootstrap
+# B <- 1000
+# n <- nrow(law)
+# theta_hat_star <- numeric(B) # storage
+# 
+# for(b in seq_len(B)) {
+#   ## Your Turn: Do the bootstrap!
+#   #get bootstrap dataset
+#   idx_star<-sample(seq_len(n),n,replace = T)
+#   x_star<-law[idx_star,]
+#   
+#   #computing teh statistic
+#   theta_hat_star[b]<-cor(x_star$lsat,x_star$gpa)
+# }
+
+percentile_bootstrap<-function(data,B){
+  n<-nrow(data)
+  for (b in seq_len(B)){
+    which.col<-sample(seq_len(n),n,replace=T)
+    bootstrap.reps<-data[which.col,]
+  }
+  return(bootstrap.reps)
+}
+test2<-percentile_bootstrap(diab.only.1,1)
+#quantile(test2,c(.05,.95))
+```
+
+```{r}
+basic_bootstrap<-function(data,B){
+  
+}
+```
+

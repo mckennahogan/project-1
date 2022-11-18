@@ -24,6 +24,12 @@ prediab.only.1<-diab.data1|>
   filter(Diabetes_012==1)
 diab.only.1<-diab.data1|>
   filter(Diabetes_012==2)
+
+length(nodiab.only.1$Diabetes_012)
+length(prediab.only.1$Diabetes_012)
+length(diab.only.1$Diabetes_012)
+
+213703/(4631+35346)
 ```
 
 ```{r EDA}
@@ -124,6 +130,12 @@ ggplot(diab.data1)+
   facet_wrap(~Diabetes_012)
 
 ```
+via boxplots can see some shifts in:
+maybe BMI
+PhysHlth
+Age
+surprisingly Income
+
 ```{r tables}
 Row1<-colMeans(nodiab.only.1)
 Row2<-colMeans(prediab.only.1)
@@ -133,8 +145,4 @@ rownames(table)<-c("no diabetes","prediabetes","diabetes")
 kable(table,align="c",digits=3)
 
 ```
-via boxplots can see some shifts in:
-maybe BMI
-PhysHlth
-Age
-surprisingly Income
+
