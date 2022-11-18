@@ -47,17 +47,36 @@ diab.only.1<-diab.data1|>
 #   #computing teh statistic
 #   theta_hat_star[b]<-cor(x_star$lsat,x_star$gpa)
 # }
-
-percentile_bootstrap<-function(data,B){
-  n<-nrow(data)
-  for (b in seq_len(B)){
+#pull size n, m times
+percentile_bootstrap<-function(data,n,m){
+  for (b in seq_len(m)){
     which.col<-sample(seq_len(n),n,replace=T)
     bootstrap.reps<-data[which.col,]
   }
+  mean.HighBP<-rep(NA,m)#TODO: each factor
+  for(i in 1:m){
+    start_i<-n*(i-1)+1
+    end_i<-n*i
+    mean.HighBP<-mean(bootstrap.resp$HighBP[start_i:end_i])
+    mean.HighChol<-mean(bootstrap.resp$HighChol[start_i:end_i])
+    mean.BMI<-mean(bootstrap.resp$BMI[start_i:end_i])
+    mean.AnyHealthcare<-mean(bootstrap.resp$AnyHealthcare[start_i:end_i])
+    mean.GenHlth<-mean(bootstrap.resp$GenHlth[start_i:end_i])
+    mean.Income<-mean(bootstrap.resp$Income[start_i:end_i])
+  }
+  
   return(bootstrap.reps)
 }
-test2<-percentile_bootstrap(diab.only.1,1)
-#quantile(test2,c(.05,.95))
+
+diabetes.1<-percentile_bootstrap(diab.only.1,5,10)
+
+for(i in 1:10){
+  start_i = n*(i-1)+1
+  end_i = n*i
+  mean.diabetes.highBP[i]<-mean(diabetes.1$HighBP[1:nrow(diabetes.1)/2,])
+}
+mean.diabetes.highBP<-mean(diabetes.1$HighBP)
+
 ```
 
 ```{r}
