@@ -31,8 +31,8 @@ For this data set, our group will focus on six different factors for our analysi
 For each bootstrap method, we will look at bootstrapping with $m=[5,10,15,30,50]$ samples and $n=[10,25,75,125,250]$.
 Each analysis will explore a specific set of $m$ and $n$ values.
 
-1. Percentile Bootstrap -> Mckenna
-2. Basic Bootstrap -> Mckenna
+1. Percentile Bootstrap -> McKenna
+2. Basic Bootstrap -> McKenna
 3. Standard Normal Bootstrap -> Jorie
 4. Student t Bootsrap -> Jorie
 5. Acclerated Bias-correction Bootstrap (BCa) -> Caedon
