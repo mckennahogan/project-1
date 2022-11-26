@@ -30,7 +30,7 @@ diab.only.1<-diab.data1|>
   select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
 ```
 
-```{r}
+```{r percentile bootstrap func}
 #income, bmi, genhealth, bp, anyhealthcare
 
 # set up the bootstrap
@@ -53,29 +53,51 @@ percentile_bootstrap<-function(data,n,m){
     which.col<-sample(seq_len(n),n,replace=T)
     bootstrap.reps<-data[which.col,]
   }
-  mean.HighBP<-rep(NA,m)#TODO: each factor
+  mean.HighBP<-rep(NA,m)
+  mean.HighChol<-rep(NA,m)
+  mean.BMI<-rep(NA,m)
+  mean.AnyHealthcare<-rep(NA,m)
+  mean.GenHlth<-rep(NA,m)
+  mean.Income<-rep(NA,m)
   for(i in 1:m){
     start_i<-n*(i-1)+1
     end_i<-n*i
-    mean.HighBP<-mean(bootstrap.resp$HighBP[start_i:end_i])
-    mean.HighChol<-mean(bootstrap.resp$HighChol[start_i:end_i])
-    mean.BMI<-mean(bootstrap.resp$BMI[start_i:end_i])
-    mean.AnyHealthcare<-mean(bootstrap.resp$AnyHealthcare[start_i:end_i])
-    mean.GenHlth<-mean(bootstrap.resp$GenHlth[start_i:end_i])
-    mean.Income<-mean(bootstrap.resp$Income[start_i:end_i])
+    mean.HighBP<-mean(bootstrap.reps$HighBP[start_i:end_i])
+    mean.HighChol<-mean(bootstrap.reps$HighChol[start_i:end_i])
+    mean.BMI<-mean(bootstrap.reps$BMI[start_i:end_i])
+    mean.AnyHealthcare<-mean(bootstrap.reps$AnyHealthcare[start_i:end_i])
+    mean.GenHlth<-mean(bootstrap.reps$GenHlth[start_i:end_i])
+    mean.Income<-mean(bootstrap.reps$Income[start_i:end_i])
+  }
+  CI.HighBP<-rep(NA,m)
+  CI.HighChol<-rep(NA,m)
+  CI.BMI<-rep(NA,m)
+  CI.AnyHealthcare<-rep(NA,m)
+  CI.GenHlth<-rep(NA,m)
+  CI.Income<-rep(NA,m)
+  for(i in 1:m){
+    start_i<-n*(i-1)+1
+    end_i<-n*i
+    CI.HighBP<-quantile(bootstrap.reps$HighBP[start_i:end_i],c(.025,.975))
+    CI.HighChol<-quantile(bootstrap.reps$HighChol[start_i:end_i],c(.025,.975))
+    CI.BMI<-quantile(bootstrap.reps$BMI[start_i:end_i],c(.025,.975))
+    CI.AnyHealthcare<-quantile(bootstrap.reps$AnyHealthcare[start_i:end_i],c(.025,.975))
+    CI.GenHlth<-quantile(bootstrap.reps$GenHlth[start_i:end_i],c(.025,.975))
+    CI.Income<-quantile(bootstrap.reps$Income[start_i:end_i],c(.025,.975))
   }
   
   return(bootstrap.reps)
 }
+```
 
-diabetes.1<-percentile_bootstrap(diab.only.1,5,10)
-
-for(i in 1:10){
-  start_i = n*(i-1)+1
-  end_i = n*i
-  mean.diabetes.highBP[i]<-mean(diabetes.1$HighBP[1:nrow(diabetes.1)/2,])
-}
-mean.diabetes.highBP<-mean(diabetes.1$HighBP)
+```{r returning percentile bootstrap data}
+percentile.n5.m10<-percentile_bootstrap(diab.only.1,5,10)
+percentile.n5.m10<-percentile_bootstrap(diab.only.1,5,10)
+percentile.n5.m10<-percentile_bootstrap(diab.only.1,5,10)
+percentile.n5.m10<-percentile_bootstrap(diab.only.1,5,10)
+percentile.n5.m10<-percentile_bootstrap(diab.only.1,5,10)
+percentile.n5.m10<-percentile_bootstrap(diab.only.1,5,10)
+percentile.n5.m10<-percentile_bootstrap(diab.only.1,5,10)
 
 ```
 
