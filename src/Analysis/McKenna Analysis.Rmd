@@ -47,6 +47,102 @@ diab.only.1<-diab.data1|>
 #   #computing teh statistic
 #   theta_hat_star[b]<-cor(x_star$lsat,x_star$gpa)
 # }
+#pull size m, n times
+percentile_bootstrap<-function(data,m,n){
+  for (b in seq_len(n)){
+    which.col<-sample(seq_len(m),m,replace=T)
+    bootstrap.reps<-data[which.col,]
+  }
+  mean.HighBP<-mean(bootstrap.reps$HighBP)
+  mean.HighChol<-mean(bootstrap.reps$HighChol)
+  mean.BMI<-mean(bootstrap.reps$BMI)
+  mean.AnyHealthcare<-mean(bootstrap.reps$AnyHealthcare)
+  mean.GenHlth<-mean(bootstrap.reps$GenHlth)
+  mean.Income<-mean(bootstrap.reps$Income)
+  mean.table<-data.frame(mean.HighBP,mean.HighChol,
+                         mean.BMI,mean.AnyHealthcare,mean.GenHlth,mean.Income)
+  rownames(mean.table)<-c("mean")
+  colnames(mean.table)<-c("High BP","High Chol",
+                          "BMI","Any Healthcare","General Health","Income")
+  mean.kable<-kable(mean.table,align="c")
+
+  CI.HighBP<-quantile(bootstrap.reps$HighBP,c(.025,.975))
+  CI.HighChol<-quantile(bootstrap.reps$HighChol,c(.025,.975))
+  CI.BMI<-quantile(bootstrap.reps$BMI,c(.025,.975))
+  CI.AnyHealthcare<-quantile(bootstrap.reps$AnyHealthcare,c(.025,.975))
+  CI.GenHlth<-quantile(bootstrap.reps$GenHlth,c(.025,.975))
+  CI.Income<-quantile(bootstrap.reps$Income,c(.025,.975))
+  CI.table<-data.frame(CI.HighBP,CI.HighChol,
+                         CI.BMI,CI.AnyHealthcare,CI.GenHlth,CI.Income)
+  colnames(CI.table)<-c("High BP","High Chol",
+                        "BMI","Any Healthcare","General Health","Income")
+  CI.kable<-kable(CI.table,align="c")
+
+  return(list(bootstrap.reps,mean.kable,CI.kable))
+}
+```
+
+```{r returning percentile bootstrap data}
+# m=5 samples
+percentile.m5.n10<-percentile_bootstrap(diab.only.1,5,10)
+percentile.m5.n25<-percentile_bootstrap(diab.only.1,5,25)
+percentile.m5.n75<-percentile_bootstrap(diab.only.1,5,75)
+percentile.m5.125<-percentile_bootstrap(diab.only.1,5,125)
+percentile.m5.250<-percentile_bootstrap(diab.only.1,5,250)
+
+# m=10 samples
+percentile.m10.n10<-percentile_bootstrap(diab.only.1,10,10)
+percentile.m10.n25<-percentile_bootstrap(diab.only.1,10,25)
+percentile.m10.n75<-percentile_bootstrap(diab.only.1,10,75)
+percentile.m10.125<-percentile_bootstrap(diab.only.1,10,125)
+percentile.m10.250<-percentile_bootstrap(diab.only.1,10,250)
+
+#m=15 samples
+percentile.m15.n10<-percentile_bootstrap(diab.only.1,15,10)
+percentile.m15.n25<-percentile_bootstrap(diab.only.1,15,25)
+percentile.m15.n75<-percentile_bootstrap(diab.only.1,15,75)
+percentile.m15.125<-percentile_bootstrap(diab.only.1,15,125)
+percentile.m15.250<-percentile_bootstrap(diab.only.1,15,250)
+
+#m=30 samples
+percentile.m30.n10<-percentile_bootstrap(diab.only.1,30,10)
+percentile.m30.n25<-percentile_bootstrap(diab.only.1,30,25)
+percentile.m30.n75<-percentile_bootstrap(diab.only.1,30,75)
+percentile.m30.125<-percentile_bootstrap(diab.only.1,30,125)
+percentile.m30.250<-percentile_bootstrap(diab.only.1,30,250)
+
+#m=50 samples
+percentile.m50.n10<-percentile_bootstrap(diab.only.1,50,10)
+percentile.m50.n25<-percentile_bootstrap(diab.only.1,50,25)
+percentile.m50.n75<-percentile_bootstrap(diab.only.1,50,75)
+percentile.m50.125<-percentile_bootstrap(diab.only.1,50,125)
+percentile.m50.250<-percentile_bootstrap(diab.only.1,50,250)
+
+```
+
+```{r}
+basic_bootstrap<-function(data,B){
+  
+}
+```
+
+```{r old code}
+#income, bmi, genhealth, bp, anyhealthcare
+
+# set up the bootstrap
+# B <- 1000
+# n <- nrow(law)
+# theta_hat_star <- numeric(B) # storage
+# 
+# for(b in seq_len(B)) {
+#   ## Your Turn: Do the bootstrap!
+#   #get bootstrap dataset
+#   idx_star<-sample(seq_len(n),n,replace = T)
+#   x_star<-law[idx_star,]
+#   
+#   #computing teh statistic
+#   theta_hat_star[b]<-cor(x_star$lsat,x_star$gpa)
+# }
 #pull size n, m times
 percentile_bootstrap<-function(data,n,m){
   for (b in seq_len(m)){
@@ -69,41 +165,27 @@ percentile_bootstrap<-function(data,n,m){
     mean.GenHlth<-mean(bootstrap.reps$GenHlth[start_i:end_i])
     mean.Income<-mean(bootstrap.reps$Income[start_i:end_i])
   }
-  CI.HighBP<-rep(NA,m)
-  CI.HighChol<-rep(NA,m)
-  CI.BMI<-rep(NA,m)
-  CI.AnyHealthcare<-rep(NA,m)
-  CI.GenHlth<-rep(NA,m)
-  CI.Income<-rep(NA,m)
-  for(i in 1:m){
-    start_i<-n*(i-1)+1
-    end_i<-n*i
-    CI.HighBP<-quantile(bootstrap.reps$HighBP[start_i:end_i],c(.025,.975))
-    CI.HighChol<-quantile(bootstrap.reps$HighChol[start_i:end_i],c(.025,.975))
-    CI.BMI<-quantile(bootstrap.reps$BMI[start_i:end_i],c(.025,.975))
-    CI.AnyHealthcare<-quantile(bootstrap.reps$AnyHealthcare[start_i:end_i],c(.025,.975))
-    CI.GenHlth<-quantile(bootstrap.reps$GenHlth[start_i:end_i],c(.025,.975))
-    CI.Income<-quantile(bootstrap.reps$Income[start_i:end_i],c(.025,.975))
-  }
-  
-  return(list(bootstrap.reps))
+  mean.table<-data.frame(mean.HighBP,mean.HighChol,
+                         mean.BMI,mean.AnyHealthcare,mean.GenHlth,mean.Income)
+  mean.kable<-kable(mean.table)
+  # CI.HighBP<-rep(NA,m)
+  # CI.HighChol<-rep(NA,m)
+  # CI.BMI<-rep(NA,m)
+  # CI.AnyHealthcare<-rep(NA,m)
+  # CI.GenHlth<-rep(NA,m)
+  # CI.Income<-rep(NA,m)
+  # for(i in 1:m){
+  #   start_i<-n*(i-1)+1
+  #   end_i<-n*i
+  #   CI.HighBP<-quantile(bootstrap.reps$HighBP[start_i:end_i],c(.025,.975))
+  #   CI.HighChol<-quantile(bootstrap.reps$HighChol[start_i:end_i],c(.025,.975))
+  #   CI.BMI<-quantile(bootstrap.reps$BMI[start_i:end_i],c(.025,.975))
+  #   CI.AnyHealthcare<-quantile(bootstrap.reps$AnyHealthcare[start_i:end_i],c(.025,.975))
+  #   CI.GenHlth<-quantile(bootstrap.reps$GenHlth[start_i:end_i],c(.025,.975))
+  #   CI.Income<-quantile(bootstrap.reps$Income[start_i:end_i],c(.025,.975))
+  # }
+  # 
+  return(list(bootstrap.reps,mean.kable))
 }
-```
-
-```{r returning percentile bootstrap data}
-percentile.n5.m10<-percentile_bootstrap(diab.only.1,5,10)
-percentile.n5.m10<-percentile_bootstrap(diab.only.1,5,10)
-percentile.n5.m10<-percentile_bootstrap(diab.only.1,5,10)
-percentile.n5.m10<-percentile_bootstrap(diab.only.1,5,10)
-percentile.n5.m10<-percentile_bootstrap(diab.only.1,5,10)
-percentile.n5.m10<-percentile_bootstrap(diab.only.1,5,10)
-percentile.n5.m10<-percentile_bootstrap(diab.only.1,5,10)
 
 ```
-
-```{r}
-basic_bootstrap<-function(data,B){
-  
-}
-```
-
