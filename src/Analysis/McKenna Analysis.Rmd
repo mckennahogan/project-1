@@ -94,6 +94,18 @@ percentile_basic_bootstrap<-function(data,m,n){
 
 ```{r returning bootstrap data}
 # m=5 samples
+no.percentile.m5.n10<-percentile_basic_bootstrap(nodiab.only.1,5,10)
+no.percentile.m5.n25<-percentile_basic_bootstrap(nodiab.only.1,5,25)
+no.percentile.m5.n75<-percentile_basic_bootstrap(nodiab.only.1,5,75)
+no.percentile.m5.125<-percentile_basic_bootstrap(nodiab.only.1,5,125)
+no.percentile.m5.250<-percentile_basic_bootstrap(nodiab.only.1,5,250)
+
+pre.percentile.m5.n10<-percentile_basic_bootstrap(prediab.only.1,5,10)
+pre.percentile.m5.n25<-percentile_basic_bootstrap(prediab.only.1,5,25)
+pre.percentile.m5.n75<-percentile_basic_bootstrap(prediab.only.1,5,75)
+pre.percentile.m5.125<-percentile_basic_bootstrap(prediab.only.1,5,125)
+pre.percentile.m5.250<-percentile_basic_bootstrap(prediab.only.1,5,250)
+
 percentile.m5.n10<-percentile_basic_bootstrap(diab.only.1,5,10)
 percentile.m5.n25<-percentile_basic_bootstrap(diab.only.1,5,25)
 percentile.m5.n75<-percentile_basic_bootstrap(diab.only.1,5,75)
@@ -101,6 +113,18 @@ percentile.m5.125<-percentile_basic_bootstrap(diab.only.1,5,125)
 percentile.m5.250<-percentile_basic_bootstrap(diab.only.1,5,250)
 
 # m=10 samples
+no.percentile.m10.n10<-percentile_basic_bootstrap(nodiab.only.1,10,10)
+no.percentile.m10.n25<-percentile_basic_bootstrap(nodiab.only.1,10,25)
+no.percentile.m10.n75<-percentile_basic_bootstrap(nodiab.only.1,10,75)
+no.percentile.m10.125<-percentile_basic_bootstrap(nodiab.only.1,10,125)
+no.percentile.m10.250<-percentile_basic_bootstrap(nodiab.only.1,10,250)
+
+pre.percentile.m10.n10<-percentile_basic_bootstrap(prediab.only.1,10,10)
+pre.percentile.m10.n25<-percentile_basic_bootstrap(prediab.only.1,10,25)
+pre.percentile.m10.n75<-percentile_basic_bootstrap(prediab.only.1,10,75)
+pre.percentile.m10.125<-percentile_basic_bootstrap(prediab.only.1,10,125)
+pre.percentile.m10.250<-percentile_basic_bootstrap(prediab.only.1,10,250)
+
 percentile.m10.n10<-percentile_basic_bootstrap(diab.only.1,10,10)
 percentile.m10.n25<-percentile_basic_bootstrap(diab.only.1,10,25)
 percentile.m10.n75<-percentile_basic_bootstrap(diab.only.1,10,75)
@@ -108,6 +132,18 @@ percentile.m10.125<-percentile_basic_bootstrap(diab.only.1,10,125)
 percentile.m10.250<-percentile_basic_bootstrap(diab.only.1,10,250)
 
 #m=15 samples
+no.percentile.m15.n10<-percentile_basic_bootstrap(nodiab.only.1,15,10)
+no.percentile.m15.n25<-percentile_basic_bootstrap(nodiab.only.1,15,25)
+no.percentile.m15.n75<-percentile_basic_bootstrap(nodiab.only.1,15,75)
+no.percentile.m15.125<-percentile_basic_bootstrap(nodiab.only.1,15,125)
+no.percentile.m15.250<-percentile_basic_bootstrap(nodiab.only.1,15,250)
+
+pre.percentile.m15.n10<-percentile_basic_bootstrap(prediab.only.1,15,10)
+pre.percentile.m15.n25<-percentile_basic_bootstrap(prediab.only.1,15,25)
+pre.percentile.m15.n75<-percentile_basic_bootstrap(prediab.only.1,15,75)
+pre.percentile.m15.125<-percentile_basic_bootstrap(prediab.only.1,15,125)
+pre.percentile.m15.250<-percentile_basic_bootstrap(prediab.only.1,15,250)
+
 percentile.m15.n10<-percentile_basic_bootstrap(diab.only.1,15,10)
 percentile.m15.n25<-percentile_basic_bootstrap(diab.only.1,15,25)
 percentile.m15.n75<-percentile_basic_bootstrap(diab.only.1,15,75)
@@ -115,6 +151,18 @@ percentile.m15.125<-percentile_basic_bootstrap(diab.only.1,15,125)
 percentile.m15.250<-percentile_basic_bootstrap(diab.only.1,15,250)
 
 #m=30 samples
+no.percentile.m30.n10<-percentile_basic_bootstrap(nodiab.only.1,30,10)
+no.percentile.m30.n25<-percentile_basic_bootstrap(nodiab.only.1,30,25)
+no.percentile.m30.n75<-percentile_basic_bootstrap(nodiab.only.1,30,75)
+no.percentile.m30.125<-percentile_basic_bootstrap(nodiab.only.1,30,125)
+no.percentile.m30.250<-percentile_basic_bootstrap(nodiab.only.1,30,250)
+
+pre.percentile.m30.n10<-percentile_basic_bootstrap(prediab.only.1,30,10)
+pre.percentile.m30.n25<-percentile_basic_bootstrap(prediab.only.1,30,25)
+pre.percentile.m30.n75<-percentile_basic_bootstrap(prediab.only.1,30,75)
+pre.percentile.m30.125<-percentile_basic_bootstrap(prediab.only.1,30,125)
+pre.percentile.m30.250<-percentile_basic_bootstrap(prediab.only.1,30,250)
+
 percentile.m30.n10<-percentile_basic_bootstrap(diab.only.1,30,10)
 percentile.m30.n25<-percentile_basic_bootstrap(diab.only.1,30,25)
 percentile.m30.n75<-percentile_basic_bootstrap(diab.only.1,30,75)
@@ -122,17 +170,24 @@ percentile.m30.125<-percentile_basic_bootstrap(diab.only.1,30,125)
 percentile.m30.250<-percentile_basic_bootstrap(diab.only.1,30,250)
 
 #m=50 samples
+no.percentile.m50.n10<-percentile_basic_bootstrap(nodiab.only.1,50,10)
+no.percentile.m50.n25<-percentile_basic_bootstrap(nodiab.only.1,50,25)
+no.percentile.m50.n75<-percentile_basic_bootstrap(nodiab.only.1,50,75)
+no.percentile.m50.125<-percentile_basic_bootstrap(nodiab.only.1,50,125)
+no.percentile.m50.250<-percentile_basic_bootstrap(nodiab.only.1,50,250)
+
+pre.percentile.m50.n10<-percentile_basic_bootstrap(prediab.only.1,50,10)
+pre.percentile.m50.n25<-percentile_basic_bootstrap(prediab.only.1,50,25)
+pre.percentile.m50.n75<-percentile_basic_bootstrap(prediab.only.1,50,75)
+pre.percentile.m50.125<-percentile_basic_bootstrap(prediab.only.1,50,125)
+pre.percentile.m50.250<-percentile_basic_bootstrap(prediab.only.1,50,250)
+
 percentile.m50.n10<-percentile_basic_bootstrap(diab.only.1,50,10)
 percentile.m50.n25<-percentile_basic_bootstrap(diab.only.1,50,25)
 percentile.m50.n75<-percentile_basic_bootstrap(diab.only.1,50,75)
 percentile.m50.125<-percentile_basic_bootstrap(diab.only.1,50,125)
 percentile.m50.250<-percentile_basic_bootstrap(diab.only.1,50,250)
 
-percentile.m50.n10
-percentile.m50.n25
-percentile.m50.n75
-percentile.m50.125
-percentile.m50.250
 ```
 
 
@@ -197,4 +252,8 @@ percentile_bootstrap<-function(data,n,m){
   # 
   return(list(bootstrap.reps,mean.kable))
 }
+
+t<-percentile_bootstrap(diab.only.1,30,10)
+t
+percentile.m30.n10
 ```
