@@ -50,24 +50,24 @@ percentile_basic_bootstrap<-function(data,m,n){
   rownames(mean.table)<-c("mean")
   colnames(mean.table)<-c("High BP","High Chol",
                           "BMI","Any Healthcare","General Health","Income")
-  mean.kable<-kable(mean.table,align="c",captioin="means")
+  mean.kable<-kable(mean.table,align="c",caption="means",digits=2)
   
   #percentile CI's
-  p.CI.HighBP<-quantile(bootstrap.reps$HighBP,c(.025,.975))
-  p.CI.HighChol<-quantile(bootstrap.reps$HighChol,c(.025,.975))
+  p.CI.HighBP<-c(mean.HighBP-1.96*sqrt((mean.HighBP*(1-mean.HighBP))/m),
+                   mean.HighBP+1.96*sqrt((mean.HighBP*(1-mean.HighBP))/m))
+  p.CI.HighChol<-c(mean.HighChol-1.96*sqrt((mean.HighChol*(1-mean.HighChol))/m),
+                   mean.HighChol+1.96*sqrt((mean.HighChol*(1-mean.HighChol))/m))
   p.CI.BMI<-quantile(bootstrap.reps$BMI,c(.025,.975))
-  
-  p.CI.BMI.test<-c(mean.BMI-1.96*sqrt((mean.BMI*(1-mean.BMI))/m),
-                   mean.BMI+1.96*sqrt((mean.BMI*(1-mean.BMI))/m))
-  
-  p.CI.AnyHealthcare<-quantile(bootstrap.reps$AnyHealthcare,c(.025,.975))
+  p.CI.AnyHealthcare<-c(mean.AnyHealthcare-
+                          1.96*sqrt((mean.AnyHealthcare*(1-mean.AnyHealthcare))/m),
+                   mean.AnyHealthcare+1.96*sqrt((mean.AnyHealthcare*(1-mean.AnyHealthcare))/m))
   p.CI.GenHlth<-quantile(bootstrap.reps$GenHlth,c(.025,.975))
   p.CI.Income<-quantile(bootstrap.reps$Income,c(.025,.975))
   p.CI.table<-data.frame(p.CI.HighBP,p.CI.HighChol,
-                         p.CI.BMI,p.CI.BMI.test,p.CI.AnyHealthcare,p.CI.GenHlth,p.CI.Income)
+                         p.CI.BMI,p.CI.AnyHealthcare,p.CI.GenHlth,p.CI.Income)
   colnames(p.CI.table)<-c("High BP","High Chol",
-                        "BMI","test","Any Healthcare","General Health","Income")
-  p.CI.kable<-kable(p.CI.table,align="c",caption="percentile CI")
+                        "BMI","Any Healthcare","General Health","Income")
+  p.CI.kable<-kable(p.CI.table,align="c",caption="percentile CI",digits=2)
   
   #basic CI's
   b.CI.HighBP<-c(2*mean.HighBP-quantile(bootstrap.reps$HighBP,.975),
@@ -86,7 +86,7 @@ percentile_basic_bootstrap<-function(data,m,n){
                          b.CI.BMI,b.CI.AnyHealthcare,b.CI.GenHlth,b.CI.Income)
   colnames(b.CI.table)<-c("High BP","High Chol",
                         "BMI","Any Healthcare","General Health","Income")
-  b.CI.kable<-kable(b.CI.table,align="c",caption="basic CI")
+  b.CI.kable<-kable(b.CI.table,align="c",caption="basic CI",digits=2)
 
   return(list(bootstrap.reps,mean.kable,p.CI.kable,b.CI.kable))
 }
@@ -128,6 +128,11 @@ percentile.m50.n75<-percentile_basic_bootstrap(diab.only.1,50,75)
 percentile.m50.125<-percentile_basic_bootstrap(diab.only.1,50,125)
 percentile.m50.250<-percentile_basic_bootstrap(diab.only.1,50,250)
 
+percentile.m50.n10
+percentile.m50.n25
+percentile.m50.n75
+percentile.m50.125
+percentile.m50.250
 ```
 
 
@@ -192,5 +197,4 @@ percentile_bootstrap<-function(data,n,m){
   # 
   return(list(bootstrap.reps,mean.kable))
 }
-
 ```
