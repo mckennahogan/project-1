@@ -86,7 +86,7 @@ percentile_bootstrap<-function(data,n,m){
     CI.Income<-quantile(bootstrap.reps$Income[start_i:end_i],c(.025,.975))
   }
   
-  return(bootstrap.reps)
+  return(list(bootstrap.reps))
 }
 ```
 
