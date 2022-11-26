@@ -32,10 +32,10 @@ diab.only.1<-diab.data1|>
 
 ```{r percentile bootstrap func}
 #income, bmi, genhealth, bp, anyhealthcare
-#pull size m, n times
+#pull size n, m times
 percentile_basic_bootstrap<-function(data,m,n){
-  for (b in seq_len(n)){
-    which.col<-sample(seq_len(m),m,replace=T)
+  for (b in seq_len(m)){
+    which.col<-sample(seq_len(n),n,replace=T)
     bootstrap.reps<-data[which.col,]
   }
   #means
@@ -51,16 +51,18 @@ percentile_basic_bootstrap<-function(data,m,n){
   colnames(mean.table)<-c("High BP","High Chol",
                           "BMI","Any Healthcare","General Health","Income")
   mean.kable<-kable(mean.table,align="c",caption="means",digits=2)
+  means<-c(mean.HighBP,mean.HighChol,
+                         mean.BMI,mean.AnyHealthcare,mean.GenHlth,mean.Income)
   
   #percentile CI's
-  p.CI.HighBP<-c(mean.HighBP-1.96*sqrt((mean.HighBP*(1-mean.HighBP))/m),
-                   mean.HighBP+1.96*sqrt((mean.HighBP*(1-mean.HighBP))/m))
-  p.CI.HighChol<-c(mean.HighChol-1.96*sqrt((mean.HighChol*(1-mean.HighChol))/m),
-                   mean.HighChol+1.96*sqrt((mean.HighChol*(1-mean.HighChol))/m))
+  p.CI.HighBP<-c(mean.HighBP-1.96*sqrt((mean.HighBP*(1-mean.HighBP))/n),
+                   mean.HighBP+1.96*sqrt((mean.HighBP*(1-mean.HighBP))/n))
+  p.CI.HighChol<-c(mean.HighChol-1.96*sqrt((mean.HighChol*(1-mean.HighChol))/n),
+                   mean.HighChol+1.96*sqrt((mean.HighChol*(1-mean.HighChol))/n))
   p.CI.BMI<-quantile(bootstrap.reps$BMI,c(.025,.975))
   p.CI.AnyHealthcare<-c(mean.AnyHealthcare-
-                          1.96*sqrt((mean.AnyHealthcare*(1-mean.AnyHealthcare))/m),
-                   mean.AnyHealthcare+1.96*sqrt((mean.AnyHealthcare*(1-mean.AnyHealthcare))/m))
+                          1.96*sqrt((mean.AnyHealthcare*(1-mean.AnyHealthcare))/n),
+                   mean.AnyHealthcare+1.96*sqrt((mean.AnyHealthcare*(1-mean.AnyHealthcare))/n))
   p.CI.GenHlth<-quantile(bootstrap.reps$GenHlth,c(.025,.975))
   p.CI.Income<-quantile(bootstrap.reps$Income,c(.025,.975))
   p.CI.table<-data.frame(p.CI.HighBP,p.CI.HighChol,
@@ -68,6 +70,8 @@ percentile_basic_bootstrap<-function(data,m,n){
   colnames(p.CI.table)<-c("High BP","High Chol",
                         "BMI","Any Healthcare","General Health","Income")
   p.CI.kable<-kable(p.CI.table,align="c",caption="percentile CI",digits=2)
+  p.CIs<-c(p.CI.HighBP,p.CI.HighChol,
+                         p.CI.BMI,p.CI.AnyHealthcare,p.CI.GenHlth,p.CI.Income)
   
   #basic CI's
   b.CI.HighBP<-c(2*mean.HighBP-quantile(bootstrap.reps$HighBP,.975),
@@ -88,106 +92,114 @@ percentile_basic_bootstrap<-function(data,m,n){
                         "BMI","Any Healthcare","General Health","Income")
   b.CI.kable<-kable(b.CI.table,align="c",caption="basic CI",digits=2)
 
-  return(list(bootstrap.reps,mean.kable,p.CI.kable,b.CI.kable))
+  all.table<-rbind(mean.table,p.CI.table,b.CI.table)
+  rownames(all.table)<-c("mean",".025 percentile",".975 percentile",".025 basic",".975 basic")
+  kable.alltable<-kable(all.table,digits=2,align="c")
+  return(list(bootstrap.reps,kable.alltable))
 }
 ```
+
 
 ```{r returning bootstrap data}
 # m=5 samples
 no.percentile.m5.n10<-percentile_basic_bootstrap(nodiab.only.1,5,10)
 no.percentile.m5.n25<-percentile_basic_bootstrap(nodiab.only.1,5,25)
 no.percentile.m5.n75<-percentile_basic_bootstrap(nodiab.only.1,5,75)
-no.percentile.m5.125<-percentile_basic_bootstrap(nodiab.only.1,5,125)
-no.percentile.m5.250<-percentile_basic_bootstrap(nodiab.only.1,5,250)
+no.percentile.m5.n125<-percentile_basic_bootstrap(nodiab.only.1,5,125)
+no.percentile.m5.n250<-percentile_basic_bootstrap(nodiab.only.1,5,250)
 
 pre.percentile.m5.n10<-percentile_basic_bootstrap(prediab.only.1,5,10)
 pre.percentile.m5.n25<-percentile_basic_bootstrap(prediab.only.1,5,25)
 pre.percentile.m5.n75<-percentile_basic_bootstrap(prediab.only.1,5,75)
-pre.percentile.m5.125<-percentile_basic_bootstrap(prediab.only.1,5,125)
-pre.percentile.m5.250<-percentile_basic_bootstrap(prediab.only.1,5,250)
+pre.percentile.m5.n125<-percentile_basic_bootstrap(prediab.only.1,5,125)
+pre.percentile.m5.n250<-percentile_basic_bootstrap(prediab.only.1,5,250)
 
 percentile.m5.n10<-percentile_basic_bootstrap(diab.only.1,5,10)
 percentile.m5.n25<-percentile_basic_bootstrap(diab.only.1,5,25)
 percentile.m5.n75<-percentile_basic_bootstrap(diab.only.1,5,75)
-percentile.m5.125<-percentile_basic_bootstrap(diab.only.1,5,125)
-percentile.m5.250<-percentile_basic_bootstrap(diab.only.1,5,250)
+percentile.m5.n125<-percentile_basic_bootstrap(diab.only.1,5,125)
+percentile.m5.n250<-percentile_basic_bootstrap(diab.only.1,5,250)
 
 # m=10 samples
 no.percentile.m10.n10<-percentile_basic_bootstrap(nodiab.only.1,10,10)
 no.percentile.m10.n25<-percentile_basic_bootstrap(nodiab.only.1,10,25)
 no.percentile.m10.n75<-percentile_basic_bootstrap(nodiab.only.1,10,75)
-no.percentile.m10.125<-percentile_basic_bootstrap(nodiab.only.1,10,125)
-no.percentile.m10.250<-percentile_basic_bootstrap(nodiab.only.1,10,250)
+no.percentile.m10.n125<-percentile_basic_bootstrap(nodiab.only.1,10,125)
+no.percentile.m10.n250<-percentile_basic_bootstrap(nodiab.only.1,10,250)
 
 pre.percentile.m10.n10<-percentile_basic_bootstrap(prediab.only.1,10,10)
 pre.percentile.m10.n25<-percentile_basic_bootstrap(prediab.only.1,10,25)
 pre.percentile.m10.n75<-percentile_basic_bootstrap(prediab.only.1,10,75)
-pre.percentile.m10.125<-percentile_basic_bootstrap(prediab.only.1,10,125)
-pre.percentile.m10.250<-percentile_basic_bootstrap(prediab.only.1,10,250)
+pre.percentile.m10.n125<-percentile_basic_bootstrap(prediab.only.1,10,125)
+pre.percentile.m10.n250<-percentile_basic_bootstrap(prediab.only.1,10,250)
 
 percentile.m10.n10<-percentile_basic_bootstrap(diab.only.1,10,10)
 percentile.m10.n25<-percentile_basic_bootstrap(diab.only.1,10,25)
 percentile.m10.n75<-percentile_basic_bootstrap(diab.only.1,10,75)
-percentile.m10.125<-percentile_basic_bootstrap(diab.only.1,10,125)
-percentile.m10.250<-percentile_basic_bootstrap(diab.only.1,10,250)
+percentile.m10.n125<-percentile_basic_bootstrap(diab.only.1,10,125)
+percentile.m10.n250<-percentile_basic_bootstrap(diab.only.1,10,250)
 
 #m=15 samples
 no.percentile.m15.n10<-percentile_basic_bootstrap(nodiab.only.1,15,10)
 no.percentile.m15.n25<-percentile_basic_bootstrap(nodiab.only.1,15,25)
 no.percentile.m15.n75<-percentile_basic_bootstrap(nodiab.only.1,15,75)
-no.percentile.m15.125<-percentile_basic_bootstrap(nodiab.only.1,15,125)
-no.percentile.m15.250<-percentile_basic_bootstrap(nodiab.only.1,15,250)
+no.percentile.m15.n125<-percentile_basic_bootstrap(nodiab.only.1,15,125)
+no.percentile.m15.n250<-percentile_basic_bootstrap(nodiab.only.1,15,250)
 
 pre.percentile.m15.n10<-percentile_basic_bootstrap(prediab.only.1,15,10)
 pre.percentile.m15.n25<-percentile_basic_bootstrap(prediab.only.1,15,25)
 pre.percentile.m15.n75<-percentile_basic_bootstrap(prediab.only.1,15,75)
-pre.percentile.m15.125<-percentile_basic_bootstrap(prediab.only.1,15,125)
-pre.percentile.m15.250<-percentile_basic_bootstrap(prediab.only.1,15,250)
+pre.percentile.m15.n125<-percentile_basic_bootstrap(prediab.only.1,15,125)
+pre.percentile.m15.n250<-percentile_basic_bootstrap(prediab.only.1,15,250)
 
 percentile.m15.n10<-percentile_basic_bootstrap(diab.only.1,15,10)
 percentile.m15.n25<-percentile_basic_bootstrap(diab.only.1,15,25)
 percentile.m15.n75<-percentile_basic_bootstrap(diab.only.1,15,75)
-percentile.m15.125<-percentile_basic_bootstrap(diab.only.1,15,125)
-percentile.m15.250<-percentile_basic_bootstrap(diab.only.1,15,250)
+percentile.m15.n125<-percentile_basic_bootstrap(diab.only.1,15,125)
+percentile.m15.n250<-percentile_basic_bootstrap(diab.only.1,15,250)
 
 #m=30 samples
 no.percentile.m30.n10<-percentile_basic_bootstrap(nodiab.only.1,30,10)
 no.percentile.m30.n25<-percentile_basic_bootstrap(nodiab.only.1,30,25)
 no.percentile.m30.n75<-percentile_basic_bootstrap(nodiab.only.1,30,75)
-no.percentile.m30.125<-percentile_basic_bootstrap(nodiab.only.1,30,125)
-no.percentile.m30.250<-percentile_basic_bootstrap(nodiab.only.1,30,250)
+no.percentile.m30.n125<-percentile_basic_bootstrap(nodiab.only.1,30,125)
+no.percentile.m30.n250<-percentile_basic_bootstrap(nodiab.only.1,30,250)
 
 pre.percentile.m30.n10<-percentile_basic_bootstrap(prediab.only.1,30,10)
 pre.percentile.m30.n25<-percentile_basic_bootstrap(prediab.only.1,30,25)
 pre.percentile.m30.n75<-percentile_basic_bootstrap(prediab.only.1,30,75)
-pre.percentile.m30.125<-percentile_basic_bootstrap(prediab.only.1,30,125)
-pre.percentile.m30.250<-percentile_basic_bootstrap(prediab.only.1,30,250)
+pre.percentile.m30.n125<-percentile_basic_bootstrap(prediab.only.1,30,125)
+pre.percentile.m30.n250<-percentile_basic_bootstrap(prediab.only.1,30,250)
 
 percentile.m30.n10<-percentile_basic_bootstrap(diab.only.1,30,10)
 percentile.m30.n25<-percentile_basic_bootstrap(diab.only.1,30,25)
 percentile.m30.n75<-percentile_basic_bootstrap(diab.only.1,30,75)
-percentile.m30.125<-percentile_basic_bootstrap(diab.only.1,30,125)
-percentile.m30.250<-percentile_basic_bootstrap(diab.only.1,30,250)
+percentile.m30.n125<-percentile_basic_bootstrap(diab.only.1,30,125)
+percentile.m30.n250<-percentile_basic_bootstrap(diab.only.1,30,250)
 
 #m=50 samples
 no.percentile.m50.n10<-percentile_basic_bootstrap(nodiab.only.1,50,10)
 no.percentile.m50.n25<-percentile_basic_bootstrap(nodiab.only.1,50,25)
 no.percentile.m50.n75<-percentile_basic_bootstrap(nodiab.only.1,50,75)
-no.percentile.m50.125<-percentile_basic_bootstrap(nodiab.only.1,50,125)
-no.percentile.m50.250<-percentile_basic_bootstrap(nodiab.only.1,50,250)
+no.percentile.m50.n125<-percentile_basic_bootstrap(nodiab.only.1,50,125)
+no.percentile.m50.n250<-percentile_basic_bootstrap(nodiab.only.1,50,250)
 
 pre.percentile.m50.n10<-percentile_basic_bootstrap(prediab.only.1,50,10)
 pre.percentile.m50.n25<-percentile_basic_bootstrap(prediab.only.1,50,25)
 pre.percentile.m50.n75<-percentile_basic_bootstrap(prediab.only.1,50,75)
-pre.percentile.m50.125<-percentile_basic_bootstrap(prediab.only.1,50,125)
-pre.percentile.m50.250<-percentile_basic_bootstrap(prediab.only.1,50,250)
+pre.percentile.m50.n125<-percentile_basic_bootstrap(prediab.only.1,50,125)
+pre.percentile.m50.n250<-percentile_basic_bootstrap(prediab.only.1,50,250)
 
 percentile.m50.n10<-percentile_basic_bootstrap(diab.only.1,50,10)
 percentile.m50.n25<-percentile_basic_bootstrap(diab.only.1,50,25)
 percentile.m50.n75<-percentile_basic_bootstrap(diab.only.1,50,75)
-percentile.m50.125<-percentile_basic_bootstrap(diab.only.1,50,125)
-percentile.m50.250<-percentile_basic_bootstrap(diab.only.1,50,250)
+percentile.m50.n125<-percentile_basic_bootstrap(diab.only.1,50,125)
+percentile.m50.n250<-percentile_basic_bootstrap(diab.only.1,50,250)
 
+```
+
+```{r}
+#TODO: show kables
 ```
 
 
