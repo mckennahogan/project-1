@@ -265,7 +265,121 @@ percentile_bootstrap<-function(data,n,m){
   return(list(bootstrap.reps,mean.kable))
 }
 
-t<-percentile_bootstrap(diab.only.1,30,10)
-t
-percentile.m30.n10
 ```
+
+
+```{r percentile bootstrap func}
+#income, bmi, genhealth, bp, anyhealthcare
+#pull size n, m times
+percentile_basic_bootstrap1<-function(data,m,n){
+  mean.HighBP<-numeric(m)
+  mean.HighChol<-numeric(m)
+  mean.BMI<-numeric(m)
+  mean.AnyHealthcare<-numeric(m)
+  mean.GenHlth<-numeric(m)
+  mean.Income<-numeric(m)
+  
+  pCI.HighBP.low<-numeric(m)
+  pCI.HighBP.high<-numeric(m)
+  pCI.HighChol.low<-numeric(m)
+  pCI.HighChol.high<-numeric(m)
+  pCI.BMI.low<-numeric(m)
+  pCI.BMI.high<-numeric(m)
+  pCI.AnyHealthcare.low<-numeric(m)
+  pCI.AnyHealthcare.high<-numeric(m)
+  pCI.GenHlth.low<-numeric(m)
+  pCI.GenHlth.high<-numeric(m)
+  pCI.Income.low<-numeric(m)
+  pCI.Income.high<-numeric(m)
+  
+  bCI.HighBP.low<-numeric(m)
+  bCI.HighBP.high<-numeric(m)
+  bCI.HighChol.low<-numeric(m)
+  bCI.HighChol.high<-numeric(m)
+  bCI.BMI.low<-numeric(m)
+  bCI.BMI.high<-numeric(m)
+  bCI.AnyHealthcare.low<-numeric(m)
+  bCI.AnyHealthcare.high<-numeric(m)
+  bCI.GenHlth.low<-numeric(m)
+  bCI.GenHlth.high<-numeric(m)
+  bCI.Income.low<-numeric(m)
+  bCI.Income.high<-numeric(m)
+  
+  for (b in seq_len(m)){
+    which.col<-sample(seq_len(n),n,replace=T)
+    bootstrap.reps<-data[which.col,]
+  
+    #means
+    mean.HighBP[b]<-mean(bootstrap.reps$HighBP)
+    mean.HighChol[b]<-mean(bootstrap.reps$HighChol)
+    mean.BMI[b]<-mean(bootstrap.reps$BMI)
+    mean.AnyHealthcare[b]<-mean(bootstrap.reps$AnyHealthcare)
+    mean.GenHlth[b]<-mean(bootstrap.reps$GenHlth)
+    mean.Income[b]<-mean(bootstrap.reps$Income)
+    
+    #percentile
+    pCI.HighBP.low[b]<-mean.HighBP[b]-1.96*sqrt((mean.HighBP[b]*(1-mean.HighBP[b]))/n)
+    pCI.HighBP.high[b]<-mean.HighBP[b]+1.96*sqrt((mean.HighBP[b]*(1-mean.HighBP[b]))/n)
+    pCI.HighChol.low[b]<-mean.HighBP[b]-1.96*sqrt((mean.HighChol[b]*(1-mean.HighChol[b]))/n)
+    pCI.HighChol.high[b]<-mean.HighBP[b]+1.96*sqrt((mean.HighChol[b]*(1-mean.HighChol[b]))/n)
+    pCI.BMI.low[b]<-quantile(bootstrap.reps$BMI,.025)
+    pCI.BMI.high[b]<-quantile(bootstrap.reps$BMI,.975)
+    pCI.AnyHealthcare.low[b]<-mean.AnyHealthcare[b]-
+                            1.96*sqrt((mean.AnyHealthcare[b]*(1-mean.AnyHealthcare[b]))/n)
+    pCI.AnyHealthcare.high[b]<-mean.AnyHealthcare[b]+
+                            1.96*sqrt((mean.AnyHealthcare[b]*(1-mean.AnyHealthcare[b]))/n)
+    pCI.GenHlth.low[b]<-quantile(bootstrap.reps$GenHlth,.025)
+    pCI.GenHlth.high[b]<-quantile(bootstrap.reps$GenHlth,.975)
+    pCI.Income.low[b]<-quantile(bootstrap.reps$Income,.025)
+    pCI.Income.high[b]<-quantile(bootstrap.reps$Income,.975)
+    
+    #basic
+    bCI.HighBP.low<-2*mean.HighBP[b]-quantile(bootstrap.reps$HighBP,.975)
+    bCI.HighBP.high<-2*mean.HighBP[b]-quantile(bootstrap.reps$HighBP,.025)
+    bCI.HighChol.low<-2*mean.HighChol[b]-quantile(bootstrap.reps$HighChol,.975)
+    bCI.HighChol.high<-2*mean.HighChol[b]-quantile(bootstrap.reps$HighChol,.025)
+    bCI.BMI.low<-2*mean.BMI[b]-quantile(bootstrap.reps$BMI,.975)
+    bCI.BMI.high<-2*mean.BMI[b]-quantile(bootstrap.reps$BMI,.025)
+    bCI.AnyHealthcare.low<-2*mean.AnyHealthcare[b]-quantile(bootstrap.reps$AnyHealthcare,.975)
+    bCI.AnyHealthcare.high<-2*mean.AnyHealthcare[b]-quantile(bootstrap.reps$AnyHealthcare,.025)
+    bCI.GenHlth.low<-2*mean.GenHlth[b]-quantile(bootstrap.reps$GenHlth,.975)
+    bCI.GenHlth.high<-2*mean.GenHlth[b]-quantile(bootstrap.reps$GenHlth,.025)
+    bCI.Income.low<-2*mean.Income[b]-quantile(bootstrap.reps$Income,.975)
+    bCI.Income.high<-2*mean.Income[b]-quantile(bootstrap.reps$Income,.025)
+  
+  }
+  mean.table<-data.frame(cbind(mean.HighBP,mean.HighChol,mean.BMI,
+                         mean.AnyHealthcare,mean.GenHlth,mean.Income))
+  colnames(mean.table)<-c("High BP","High Chol","BMI",
+                          "Any Healthcare","General Health","Income")
+
+  pCI.table<-data.frame(cbind(pCI.HighBP.low,pCI.HighBP.high,
+                   pCI.HighChol.low,pCI.HighChol.high,
+                   pCI.BMI.low,pCI.BMI.high,
+                   pCI.AnyHealthcare.low,pCI.AnyHealthcare.high,
+                   pCI.GenHlth.low,pCI.GenHlth.high,
+                   pCI.Income.low,pCI.Income.high))
+  colnames(pCI.table)<-c(".025 High BP",".975 High BP",".025 High Chol",".975 High Chol",
+                         ".025 BMI",".975 BMI",".025 Healthcare",".975 Healthcare",
+                         ".025 General Health",".975 General health",
+                         ".025 income",".975 income")
+  bCI.table<-data.frame(cbind(bCI.HighBP.low,bCI.HighBP.high,
+                   bCI.HighChol.low,bCI.HighChol.high,
+                   bCI.BMI.low,bCI.BMI.high,
+                   bCI.AnyHealthcare.low,bCI.AnyHealthcare.high,
+                   bCI.GenHlth.low,bCI.GenHlth.high,
+                   bCI.Income.low,bCI.Income.high))
+  colnames(bCI.table)<-c(".025 High BP",".975 High BP",".025 High Chol",".975 High Chol",
+                         ".025 BMI",".975 BMI",".025 Healthcare",".975 Healthcare",
+                         ".025 General Health",".975 General health",
+                         ".025 income",".975 income")
+  kable_mean.table<-kable(mean.table,digits=3,align="c")
+  kable_pCI.table<-kable(pCI.table,digits=3,align="c")
+  kable_bCI.table<-kable(bCI.table,digits=3,align="c")
+  return(list(kable_mean.table,kable_pCI.table,kable_bCI.table))
+}
+percentile_basic_bootstrap1(nodiab.only.1,5,10)
+```
+
+
+
