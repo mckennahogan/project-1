@@ -5,7 +5,7 @@ Timeline of work completion
 1. Finish exploration by 11/22/22
 2. Finish analysis by 11/28/22
 3. Finish presentation by 12/4/22
-4. Present on 12/6/22 or 12/8/22
+4. Present on 12/8/22
 5. Finish analysis paper by 12/14/22
 
 ## Work Breakdown
