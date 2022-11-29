@@ -200,14 +200,14 @@ percentile.m50.n250<-percentile_basic_bootstrap(diab.only.1,50,250)
 
 ```
 
-```{r}
+```{r new function data}
 
 HighBP0<-nodiab.only.1$HighBP
 HighBP1<-prediab.only.1$HighBP
 HighBP2<-diab.only.1$HighBP
 
 HighChol0<-nodiab.only.1$HighChol
-HIghChol1<-prediab.only.1$HighChol
+HighChol1<-prediab.only.1$HighChol
 HighChol2<-diab.only.1$HighChol
 
 BMI0<-nodiab.only.1$BMI
@@ -228,6 +228,39 @@ Income2<-diab.only.1$Income
 
 ```
 
+
+```{r}
+#just bp
+  no_pre<- two.boot(HighBP0, HighBP1, "mean", R = 500)
+
+  boot.no_pre<-boot.ci(no_pre,type="perc")
+  
+  plot.no_pre<-ggplot() +
+    geom_histogram(aes(no_pre$t)) +
+    xlab("mean(no diabetes) - mean(prediabetes)")
+
+  
+  se.no_pre<-sd(no_pre$t)
+
+  
+  bias.no_pre<-rep(NA,500)
+
+  for (i in 1:500){
+    bias.no_pre[i]<-no_pre$t[i]-no_pre$t0
+
+  }
+  # bias.no_pre<-mean(bias.no_pre)+
+  #   geom_error_barh(aes(y=20,xmin=boot.no_pre))
+
+  
+  
+  
+plot.no_pre
+se.no_pre
+bias.no_pre
+boot.no_pre
+```
+
 ```{r}
 diff.means.percentile<-function(data0,data1,data2,R){
   
@@ -237,19 +270,19 @@ diff.means.percentile<-function(data0,data1,data2,R){
   diab_no<- two.boot(data2, data0, "mean", R = R)
   
   plot.no_pre<-ggplot() +
-    geom_histogram(aes(no_pre$t)) +
+    geom_histogram(aes(no_pre$t), fill="darkgoldenrod1") +
     xlab("mean(no diabetes) - mean(prediabetes)")
   plot.pre_diab<-ggplot() +
-    geom_histogram(aes(pre_diab$t)) +
+    geom_histogram(aes(pre_diab$t),fill="deepskyblue") +
     xlab("mean(pre diabetes) - mean(diabetes)")
   plot.diab_no<-ggplot() +
-    geom_histogram(aes(diab_no$t)) +
+    geom_histogram(aes(diab_no$t),fill="coral") +
     xlab("mean(diabetes) - mean(no prediabetes)")
 
   
   se.no_pre<-sd(no_pre$t)
-  se.no_pre<-sd(no_pre$t)
-  se.no_pre<-sd(no_pre$t)
+  se.pre_diab<-sd(pre_diab$t)
+  se.diab_no<-sd(diab_no$t)
   
   bias.no_pre<-rep(NA,R)
   bias.pre_diab<-rep(NA,R)
@@ -263,16 +296,24 @@ diff.means.percentile<-function(data0,data1,data2,R){
   bias.pre_diab<-mean(bias.pre_diab)
   bias.diab_no<-mean(bias.diab_no)
   
-  boot.no_pre<-boot.ci(no_pre,type="percentile")
-  boot.pre_diab<-boot.ci(pre_diab,type="percentile")
-  boot.diab_no<-boot.ci(diab_no.boot,type="percentile")
+  boot.no_pre<-boot.ci(no_pre,type=c("perc","basic"))
+  boot.pre_diab<-boot.ci(pre_diab,type=c("perc","basic"))
+  boot.diab_no<-boot.ci(diab_no,type=c("perc","basic"))
 
   return(list(plot.no_pre, se.no_pre, bias.no_pre, boot.no_pre,
               plot.pre_diab, se.pre_diab, bias.pre_diab, boot.pre_diab,
               plot.diab_no, se.diab_no, bias.diab_no, boot.diab_no))
 }
 
-diff.means.percentile(HighBP0,HighBP1,HighBP2,500)
+```
+
+```{r}
+diff.means.percentile(HighBP0,HighBP1,HighBP2,1000)
+diff.means.percentile(HighChol0,HighChol1,HighChol2,1000)
+diff.means.percentile(BMI0,BMI1,BMI2,1000)
+diff.means.percentile(AnyHealthcare0,AnyHealthcare1,AnyHealthcare2,1000)
+diff.means.percentile(GenHlth0,GenHlth1,GenHlth2,1000)
+diff.means.percentile(Income0,Income1,Income2,1000)
 ```
 
 
