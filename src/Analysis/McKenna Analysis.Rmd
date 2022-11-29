@@ -334,20 +334,23 @@ percentile_basic_bootstrap1<-function(data,m,n){
     pCI.Income.high[b]<-quantile(bootstrap.reps$Income,.975)
     
     #basic
-    bCI.HighBP.low<-2*mean.HighBP[b]-quantile(bootstrap.reps$HighBP,.975)
-    bCI.HighBP.high<-2*mean.HighBP[b]-quantile(bootstrap.reps$HighBP,.025)
-    bCI.HighChol.low<-2*mean.HighChol[b]-quantile(bootstrap.reps$HighChol,.975)
-    bCI.HighChol.high<-2*mean.HighChol[b]-quantile(bootstrap.reps$HighChol,.025)
-    bCI.BMI.low<-2*mean.BMI[b]-quantile(bootstrap.reps$BMI,.975)
-    bCI.BMI.high<-2*mean.BMI[b]-quantile(bootstrap.reps$BMI,.025)
-    bCI.AnyHealthcare.low<-2*mean.AnyHealthcare[b]-quantile(bootstrap.reps$AnyHealthcare,.975)
-    bCI.AnyHealthcare.high<-2*mean.AnyHealthcare[b]-quantile(bootstrap.reps$AnyHealthcare,.025)
-    bCI.GenHlth.low<-2*mean.GenHlth[b]-quantile(bootstrap.reps$GenHlth,.975)
-    bCI.GenHlth.high<-2*mean.GenHlth[b]-quantile(bootstrap.reps$GenHlth,.025)
-    bCI.Income.low<-2*mean.Income[b]-quantile(bootstrap.reps$Income,.975)
-    bCI.Income.high<-2*mean.Income[b]-quantile(bootstrap.reps$Income,.025)
+    bCI.HighBP.low[b]<-2*mean.HighBP[b]-quantile(bootstrap.reps$HighBP,.975)
+    bCI.HighBP.high[b]<-2*mean.HighBP[b]-quantile(bootstrap.reps$HighBP,.025)
+    bCI.HighChol.low[b]<-2*mean.HighChol[b]-quantile(bootstrap.reps$HighChol,.975)
+    bCI.HighChol.high[b]<-2*mean.HighChol[b]-quantile(bootstrap.reps$HighChol,.025)
+    bCI.BMI.low[b]<-2*mean.BMI[b]-quantile(bootstrap.reps$BMI,.975)
+    bCI.BMI.high[b]<-2*mean.BMI[b]-quantile(bootstrap.reps$BMI,.025)
+    bCI.AnyHealthcare.low[b]<-
+      2*mean.AnyHealthcare[b]-quantile(bootstrap.reps$AnyHealthcare,.975)
+    bCI.AnyHealthcare.high[b]<-
+      2*mean.AnyHealthcare[b]-quantile(bootstrap.reps$AnyHealthcare,.025)
+    bCI.GenHlth.low[b]<-2*mean.GenHlth[b]-quantile(bootstrap.reps$GenHlth,.975)
+    bCI.GenHlth.high[b]<-2*mean.GenHlth[b]-quantile(bootstrap.reps$GenHlth,.025)
+    bCI.Income.low[b]<-2*mean.Income[b]-quantile(bootstrap.reps$Income,.975)
+    bCI.Income.high[b]<-2*mean.Income[b]-quantile(bootstrap.reps$Income,.025)
   
   }
+  #tables
   mean.table<-data.frame(cbind(mean.HighBP,mean.HighChol,mean.BMI,
                          mean.AnyHealthcare,mean.GenHlth,mean.Income))
   colnames(mean.table)<-c("High BP","High Chol","BMI",
@@ -373,12 +376,42 @@ percentile_basic_bootstrap1<-function(data,m,n){
                          ".025 BMI",".975 BMI",".025 Healthcare",".975 Healthcare",
                          ".025 General Health",".975 General health",
                          ".025 income",".975 income")
-  kable_mean.table<-kable(mean.table,digits=3,align="c")
-  kable_pCI.table<-kable(pCI.table,digits=3,align="c")
-  kable_bCI.table<-kable(bCI.table,digits=3,align="c")
-  return(list(kable_mean.table,kable_pCI.table,kable_bCI.table))
+  kable_mean.table<-kable(mean.table,digits=3,align="c", caption ="means")
+  kable_pCI.table<-kable(pCI.table,digits=3,align="c", caption = "percentile CI")
+  kable_bCI.table<-kable(bCI.table,digits=3,align="c", caption = "basic CI")
+  
+  #graphs
+  
+  variables<-c("High BP","High Chol","BMI",
+                        "Any Healthcare","General Health","Income")
+  graph.data<-data.frame(cbind(variables,rbind(as.numeric(mean.HighBP),
+                                               as.numeric(mean.HighChol),
+                                               as.numeric(mean.BMI),
+                                               as.numeric(mean.AnyHealthcare),
+                                               as.numeric(mean.GenHlth),
+                                               as.numeric(mean.Income))))
+  colnames(graph.data)<-c("variable",seq(from=1,to=m,by=1))
+
+
+  mean.graphs<-ggplot(graph.data)+
+    geom_histogram()+
+    facet_wrap(~variable)
+
+  
+  # mean.graphs<-ggplot(mean.table)+
+  #   geom_histogram()+
+  #   facet_wrap(variables)
+  
+  
+  
+  
+  
+  
+  return(list(kable_mean.table,kable_pCI.table,kable_bCI.table,graph.data))
 }
 percentile_basic_bootstrap1(nodiab.only.1,5,10)
+
+
 ```
 
 
