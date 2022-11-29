@@ -9,6 +9,8 @@ output: pdf_document
 library(tidyverse)
 library(knitr)
 library(dplyr)
+library(simpleboot)
+library(boot) 
 ```
 
 ```{r data}
@@ -199,7 +201,78 @@ percentile.m50.n250<-percentile_basic_bootstrap(diab.only.1,50,250)
 ```
 
 ```{r}
-#TODO: show kables
+
+HighBP0<-nodiab.only.1$HighBP
+HighBP1<-prediab.only.1$HighBP
+HighBP2<-diab.only.1$HighBP
+
+HighChol0<-nodiab.only.1$HighChol
+HIghChol1<-prediab.only.1$HighChol
+HighChol2<-diab.only.1$HighChol
+
+BMI0<-nodiab.only.1$BMI
+BMI1<-prediab.only.1$BMI
+BMI2<-diab.only.1$BMI
+
+AnyHealthcare0<-nodiab.only.1$AnyHealthcare
+AnyHealthcare1<-prediab.only.1$AnyHealthcare
+AnyHealthcare2<-diab.only.1$AnyHealthcare
+
+GenHlth0<-nodiab.only.1$GenHlth
+GenHlth1<-prediab.only.1$GenHlth
+GenHlth2<-diab.only.1$GenHlth
+
+Income0<-nodiab.only.1$Income
+Income1<-prediab.only.1$Income
+Income2<-diab.only.1$Income
+
+```
+
+```{r}
+diff.means.percentile<-function(data0,data1,data2,R){
+  
+  
+  no_pre<- two.boot(data0, data1, "mean", R = R)
+  pre_diab<- two.boot(data1, data2, "mean", R = R)
+  diab_no<- two.boot(data2, data0, "mean", R = R)
+  
+  plot.no_pre<-ggplot() +
+    geom_histogram(aes(no_pre$t)) +
+    xlab("mean(no diabetes) - mean(prediabetes)")
+  plot.pre_diab<-ggplot() +
+    geom_histogram(aes(pre_diab$t)) +
+    xlab("mean(pre diabetes) - mean(diabetes)")
+  plot.diab_no<-ggplot() +
+    geom_histogram(aes(diab_no$t)) +
+    xlab("mean(diabetes) - mean(no prediabetes)")
+
+  
+  se.no_pre<-sd(no_pre$t)
+  se.no_pre<-sd(no_pre$t)
+  se.no_pre<-sd(no_pre$t)
+  
+  bias.no_pre<-rep(NA,R)
+  bias.pre_diab<-rep(NA,R)
+  bias.diab_no<-rep(NA,R)
+  for (i in 1:R){
+    bias.no_pre[i]<-no_pre$t[i]-no_pre$t0
+    bias.pre_diab[i]<-pre_diab$t[i]-pre_diab$t0
+    bias.diab_no[i]<-diab_no$t[i]-diab_no$t0
+  }
+  bias.no_pre<-mean(bias.no_pre)
+  bias.pre_diab<-mean(bias.pre_diab)
+  bias.diab_no<-mean(bias.diab_no)
+  
+  boot.no_pre<-boot.ci(no_pre,type="percentile")
+  boot.pre_diab<-boot.ci(pre_diab,type="percentile")
+  boot.diab_no<-boot.ci(diab_no.boot,type="percentile")
+
+  return(list(plot.no_pre, se.no_pre, bias.no_pre, boot.no_pre,
+              plot.pre_diab, se.pre_diab, bias.pre_diab, boot.pre_diab,
+              plot.diab_no, se.diab_no, bias.diab_no, boot.diab_no))
+}
+
+diff.means.percentile(HighBP0,HighBP1,HighBP2,500)
 ```
 
 
