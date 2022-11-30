@@ -1,0 +1,281 @@
+Caedon Analysis Rmd
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(dplyr)
+library(simpleboot)
+library(boot)
+set.seed(400)
+```
+
+```{r} 
+# In this function I will draw samples from the population, using M = 5, 10, 15, 30, 50 samples
+# Sampling from Income, BMI, General Health, BP, Any Healthcare, Cholesterol 
+# Then, look at dsn of sample means, finally bca
+
+diab.data1<- read_csv("~/STAT400/Project 1/data/diabetes_012_health_indicators_BRFSS2015.csv")
+nodib <- diab.data1 |> 
+  filter(Diabetes_012==0)|>
+  select(HighBP, HighChol, BMI, AnyHealthcare, GenHlth, Income)
+
+predib <- diab.data1 |>
+  filter(Diabetes_012==1)|>
+  select(HighBP, HighChol, BMI, AnyHealthcare, GenHlth, Income)
+
+dib <- diab.data1 |>
+  filter(Diabetes_012==2)|>
+  select(HighBP, HighChol, BMI, AnyHealthcare, GenHlth, Income)
+
+```
+
+
+```{r acceleration constant function}
+acceleration_constant_func <- function(data,n,theta_hat){
+  I <- rep(NA, n)
+  for(i in 1:n){
+    xnew <- data[-i]
+    theta_jack <- var(xnew)/mean(xnew)^2 - 1/mean(xnew)
+    I[i] <- (n-1)*(theta_hat - theta_jack)
+  }
+  #Estimate a
+  a_hat <- (sum(I^3)/sum(I^2)^1.5)/6
+  return(a_hat)
+}
+```
+
+```{r accelerated bootstap bound adjustment function}
+u_adj <- function(a,theta_boot, theta_hat){
+  alpha <- 0.05
+  u <- c(alpha/2, 1-alpha/2) 
+  z0 <- qnorm(mean(theta_boot <= theta_hat))
+  zu <- qnorm(u)
+  
+  u_adjusted <- pnorm(z0 + (z0+zu)/(1-a*(z0+zu))) 
+  ci <- quantile(theta_boot,u_adjusted)
+  return(ci)
+}
+
+```
+
+
+```{r BCa bootstrap func} 
+
+bca_bootstrap <- function(data,m,n){
+  thetahat.HighBP <- var(data$HighBP)
+  thetahat.HighChol <- var(data$HighChol)
+  thetahat.BMI <- var(data$BMI)
+  thetahat.AnyHealthcare <- var(data$AnyHealthcare)
+  thetahat.GenHlth <- var(data$GenHlth)
+  thetahat.Income <- var(data$Income)
+  
+  thetaboot.HighBP <- numeric(m)
+  thetaboot.HighChol <- numeric(m)
+  thetaboot.BMI <- numeric(m)
+  thetaboot.AnyHealthcare <- numeric(m)
+  thetaboot.GenHlth <- numeric(m)
+  thetaboot.Income <- numeric(m)
+  
+  mean.HighBP<-numeric(m)
+  mean.HighChol<-numeric(m)
+  mean.BMI<-numeric(m)
+  mean.AnyHealthcare<-numeric(m)
+  mean.GenHlth<-numeric(m)
+  mean.Income<-numeric(m)
+  
+  for (b in seq_len(m)){
+    which.col<-sample(seq_len(n),n,replace=T)
+    bootstrap.reps<-data[which.col,]
+  
+    #means
+    mean.HighBP[b]<-mean(bootstrap.reps$HighBP)
+    mean.HighChol[b]<-mean(bootstrap.reps$HighChol)
+    mean.BMI[b]<-mean(bootstrap.reps$BMI)
+    mean.AnyHealthcare[b]<-mean(bootstrap.reps$AnyHealthcare)
+    mean.GenHlth[b]<-mean(bootstrap.reps$GenHlth)
+    mean.Income[b]<-mean(bootstrap.reps$Income)
+    
+    #var(x)/mean(x)^2 - 1/mean(x)
+    #theta hats for bootstrap
+    thetaboot.HighBP[b]<-var(bootstrap.reps$HighBP)
+    thetaboot.HighChol[b]<-var(bootstrap.reps$HighChol)
+    thetaboot.BMI[b]<-var(bootstrap.reps$BMI)
+    thetaboot.AnyHealthcare[b]<-var(bootstrap.reps$AnyHealthcare)
+    thetaboot.GenHlth[b]<-var(bootstrap.reps$GenHlth)
+    thetaboot.Income[b]<-var(bootstrap.reps$Income)
+    
+    HighBPCI <- u_adj(acceleration_constant_func(bootstrap.reps$HighBP,n,thetahat.HighBP),thetaboot.HighBP[b],thetahat.HighBP)
+    HighCholCI <- u_adj(acceleration_constant_func(bootstrap.reps$HighChol,n,thetahat.HighChol),thetaboot.HighChol[b],thetahat.HighChol)
+    BMICI <- u_adj(acceleration_constant_func(bootstrap.reps$BMI,n,thetahat.BMI),thetaboot.BMI[b],thetahat.BMI)
+    AnyHealthcareCI <- u_adj(acceleration_constant_func(bootstrap.reps$AnyHealthcare,n,thetahat.AnyHealthcare),thetaboot.AnyHealthcare[b],thetahat.AnyHealthcare)
+    GenHlthCI <- u_adj(acceleration_constant_func(bootstrap.reps$GenHlth,n,thetahat.GenHlth),thetaboot.GenHlth[b],thetahat.GenHlth)
+    IncomeCI <- u_adj(acceleration_constant_func(bootstrap.reps$Income,n,thetahat.Income),thetaboot.Income[b],thetahat.Income)
+  }
+    
+  mean.table<-data.frame(cbind(mean.HighBP,mean.HighChol,mean.BMI,
+                         mean.AnyHealthcare,mean.GenHlth,mean.Income))
+  colnames(mean.table)<-c("High BP","High Chol","BMI",
+                          "Any Healthcare","General Health","Income")
+  bcaCI.table<-data.frame(cbind(HighBPCI,
+                   HighCholCI,
+                   BMICI,
+                   AnyHealthcareCI,
+                   GenHlthCI,
+                   IncomeCI))
+  colnames(bcaCI.table)<-c("High BP","High Chol",
+                        "BMI","Any Healthcare","General Health","Income")
+  rownames(bcaCI.table)<-c("lower bound","upper bound")
+  kable_mean.table<-kable(mean.table,digits=3,align="c")
+  kable_bcaCI.table<-kable(bcaCI.table,digits=3,align="c")
+  return(list(kable_mean.table,kable_bcaCI.table))
+  
+}
+firsttry <- bca_bootstrap(nodib,5,10)
+firsttry
+```
+
+```{r bootstrap but easy}
+
+b.mean <- function(d,i){
+  mean(d[i])
+}
+
+x <- boot(nodib$HighBP,b.mean, R=10)
+boot.ci(x,type="norm")
+
+
+
+#nodib_sample_BP <- sample.int(length(nodib$HighBP), 10)
+#nodib_HighBP <- nodib$HighBP[nodib_sample_BP]
+#dib_sample_BP <- sample.int(length(dib$HighBP), 10)
+#dib_HighBP <- dib$HighBP[dib_sample_BP]
+
+#x<-two.boot(nodib_HighBP,dib_HighBP,"mean",R=2000)
+#boot.ci(x,type = "all")
+
+#x1 <- two.boot(nodib$BMI,dib$BMI,"mean",R=2000)
+#boot.ci(x1,type = "all")
+
+```
+
+
+
+```{r bootstrap by hand}
+
+f1 <- function(data, m,n){
+
+  bootstrap_data <- list()
+  for(i in 1:m){
+    temp_sample_ind <- sample.int(length(data), n)
+    bootstrap_data[[i]] <- data[temp_sample_ind]
+  }
+  return(bootstrap_data)
+}
+
+b_means <- function(data,m){
+  
+  bootstrap_means <- rep(0,m)
+  for(row in 1:m){
+    row_vector <- data[[row]]
+    bootstrap_means[row] <- mean(row_vector)
+  }
+  return(bootstrap_means)
+}
+b_thetas <- function(data,m){
+  
+  bootstrap_thetas <- rep(0,m)
+  for(row in 1:m){
+    row_vector <- data[[row]]
+    bootstrap_thetas[row] <- var(row_vector)
+  }
+  return(bootstrap_thetas)
+}
+
+a_est <- function(data,theta_hat){
+  n <- length(data)
+  I <- rep(NA, n)
+for(i in 1:n){
+   #Remove ith data point
+   xnew <- data[-i]
+   #Estimate theta
+   theta_jack <- var(xnew)
+   I[i] <- (n-1)*(theta_hat - theta_jack)
+}
+#Estimate a
+  a_hat <- (sum(I^3)/sum(I^2)^1.5)/6
+  return(a_hat)
+}
+
+
+bca_CI <- function(theta_boot,theta_hat,m){
+
+  alpha <- 0.05
+  u <- c(alpha/2, 1-alpha/2) 
+  print(u)
+  z0 <- qnorm(mean(theta_boot <= theta_hat))
+  print(z0)
+  zu <- qnorm(u)
+  print(zu)
+  a <- 0
+  #because the sample size of our data set is so large, the computation
+  #is too intensive for rstudio to conduct. With such a large data set a should
+  #be close to zero anyways, so I elected to choose zero. 
+  
+  u_adjusted <- pnorm(z0 + (z0+zu)/(1-a*(z0+zu)))
+  #u_adjusted <- pnorm(z0 + (z0+zu)/(1-a_approx*(z0+zu))) 
+  print(u_adjusted)
+  conf_int <- quantile(theta_boot,u_adjusted)
+  return(conf_int)
+  
+}
+
+nodib_HighBP <- f1(nodib$HighBP, 5, 10)
+mean_nodib_HighBP <- b_means(nodib_HighBP,5)
+
+
+nodib_HighChol <- f1(nodib$HighChol, 5, 10)
+mean_nodib_HighChol <- b_means(nodib_HighChol,5)
+
+nodib_BMI <- f1(nodib$BMI, 5, 10)
+mean_nodib_BMI <- b_means(nodib_BMI, 5)
+
+nodib_AnyHealthcare <- f1(nodib$AnyHealthcare, 5, 10)
+mean_nodib_AnyHealthcare <- b_means(nodib_AnyHealthcare,5)
+
+nodib_GenHlth <- f1(nodib$GenHlth, 5, 10)
+mean_nodib_GenHlth <- b_means(nodib_GenHlth,5)
+
+nodib_Income <- f1(nodib$Income, 5, 10)
+mean_nodib_Income <- b_means(nodib_Income,5)
+
+##############################################
+
+dib_HighBP <- f1(dib$HighBP, 5, 10)
+mean_dib_HighBP <- b_means(dib_HighBP,5)
+
+dib_HighChol <- f1(dib$HighChol, 5, 10)
+mean_dib_HighChol <- b_means(dib_HighChol,5)
+
+dib_BMI <- f1(dib$BMI, 5, 10)
+mean_dib_BMI <- b_means(dib_BMI, 5)
+
+dib_AnyHealthcare <- f1(dib$AnyHealthcare, 5, 10)
+mean_dib_AnyHealthcare <- b_means(dib_AnyHealthcare,5)
+
+dib_GenHlth <- f1(dib$GenHlth, 5, 10)
+mean_dib_GenHlth <- b_means(dib_GenHlth,5)
+
+dib_Income <- f1(dib$Income, 5, 10)
+mean_dib_Income <- b_means(dib_Income,5)
+
+nodib_HighBP_theta_hat <- var(nodib$HighBP)
+nodib_HighBP_theta_boot <- b_thetas(nodib_HighBP,5)
+#nodib_HighBP_a <- a_est(nodib$HighBP,nodib_HighBP_theta_hat)
+nodib_HighBP_confint <- bca_CI(nodib_HighBP_theta_boot,nodib_HighBP_theta_hat)
+
+
+
+
+
+```
+
