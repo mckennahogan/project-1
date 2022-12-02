@@ -9,6 +9,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
+library(knitr)
 ```
 
 ```{r DataInit, echo=TRUE, message=FALSE, warning=FALSE}
@@ -59,7 +60,7 @@ normal_boot = function(data_list, factors) {
     combo = list()
     for (d in 0:2) {
       data.stats = setNames(data.frame(matrix(ncol = 4, nrow = length(data_list))),
-                 c("mean", "sd", "lower", "upper"))
+                            c("mean", "sd", "lower", "upper"))
       # For each sample
       for (i in 1:length(data_list)) {
         data.sample = data_list[[i]] %>% filter(Diabetes==d) %>% pull(col_name)
@@ -67,7 +68,7 @@ normal_boot = function(data_list, factors) {
         data.mean = mean(data.sample)
         data.sd = sd(data.sample)
         
-        delta = pnorm((1-0.95)/2)*data.sd
+        delta = pnorm((1-0.95/2))*data.sd
         data.lower = data.mean-delta
         data.upper = data.mean+delta
         
@@ -76,9 +77,9 @@ normal_boot = function(data_list, factors) {
       theta.hat = mean(data.stats$mean)
       theta.se = sd(data.stats$mean)
       
-      delta = pnorm((1-0.95)/2)*theta.se
-      theta.lower = theta.se-delta
-      theta.upper = theta.se+delta
+      delta = pnorm((1-0.95/2))*theta.se
+      theta.lower = theta.hat-delta
+      theta.upper = theta.hat+delta
       
       data.stats[length(data_list)+1,] = c(theta.hat, theta.se, theta.lower, theta.upper)
       
@@ -89,13 +90,58 @@ normal_boot = function(data_list, factors) {
   return(ret)
 }
 
-student_t_boot = function(data, factors) {
-  
+student_t_boot = function(data_list, factors) {
+  # For each factor of interest
+  ret = list()
+  for (col_name in factors) {
+    # For no, pre, and diabetes
+    combo = list()
+    for (d in 0:2) {
+      # Theta hat for the whole dataset
+      data.theta_hat = mean(data.main %>% filter(Diabetes==d) %>% pull(col_name))
+      
+      data.stats = setNames(data.frame(matrix(ncol = 5, nrow = length(data_list))),
+                            c("mean", "se", "t_stat", "lower", "upper"))
+      # For each sample
+      for (i in 1:length(data_list)) {
+        data.sample = data_list[[i]] %>% filter(Diabetes==d) %>% pull(col_name)
+        
+        # re-sampled data
+        data.resample = data.frame(matrix(ncol=length(data.sample)+1, nrow=length(data_list)))
+        for (r in 1:length(data_list)){
+          resample = sample(data.sample, size=length(data.sample), replace=TRUE)
+          data.resample[r,] = cbind(resample, mean(resample))
+        }
+        data.mean = mean(data.sample)
+        data.se = sd(data.resample[,length(data.sample)+1])
+        
+        data.t_stat = (data.mean-data.theta_hat)/data.se
+        
+        data.stats[i,] = c(data.mean, data.se, data.t_stat, NA, NA)
+      }
+      theta.hat = mean(data.stats$mean)
+      theta.se = sd(data.stats$mean)
+      
+      theta.t_stat = (theta.hat-data.theta_hat)/theta.se
+      
+      theta.lower = theta.hat-(quantile(data.stats$t_stat, probs=c(0.05/2))*theta.se)
+      theta.upper = theta.hat+(quantile(data.stats$t_stat, probs=c(1-0.05/2))*theta.se)
+      
+      data.stats[length(data_list)+1,] = c(theta.hat, theta.se, theta.t_stat,
+                                           theta.lower, theta.upper)
+      
+      combo[[d+1]] = data.stats
+    }
+    ret[[col_name]] = combo
+  }
+  return(ret)
 }
 ```
 
 ```{r test}
 test_sample = bootSample(data.main, 5, 10)
-test_stats = normal_boot(test_sample,
+test_stats1 = normal_boot(test_sample,
+                         c("Income", "BMI", "GenHlth", "HighBP", "AnyHealthcare"))
+test_stats2 = student_t_boot(test_sample,
                          c("Income", "BMI", "GenHlth", "HighBP", "AnyHealthcare"))
 ```
