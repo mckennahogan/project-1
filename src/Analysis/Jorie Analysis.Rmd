@@ -1,0 +1,101 @@
+---
+title: "Normal Boostrap"
+author: "Jorie Alvis"
+date: '2022-11-29'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+```
+
+```{r DataInit, echo=TRUE, message=FALSE, warning=FALSE}
+# This data has three classes
+## No-diabetes: Most observations
+## Pre-diabetes: Least observations
+## Diabetes: Response of importance
+data.main = read_csv("../../data/diabetes_012_health_indicators_BRFSS2015.csv")
+data.main = data.main %>% rename("Diabetes"="Diabetes_012")
+
+# Binary Classification
+## Same number of observations for no-diabetes and pre-diabetes/diabetes
+data.balanced = read_csv("../../data/diabetes_binary_5050split_health_indicators_BRFSS2015.csv")
+data.balanced = data.balanced %>% rename("Diabetes"="Diabetes_binary")
+
+# Binary Classification
+## More observations of no-diabetes than pre-diabetes/diabetes
+data.binary = read_csv("../../data/diabetes_binary_health_indicators_BRFSS2015.csv")
+data.binary = data.binary %>% rename("Diabetes"="Diabetes_binary")
+```
+
+```{r Funcs_1, echo=TRUE, message=FALSE, warning=FALSE}
+bootSample = function(data, m, n) {
+  ret = list()
+  for (i in 1:m) {
+    sample.no_d = sample(1:length(data[data$Diabetes == 0,]), size=n, replace=TRUE)
+    data.sample.no_d = data[data$Diabetes == 0,][sample.no_d,]
+    
+    sample.pre_d = sample(1:length(data[data$Diabetes == 1,]), size=n, replace=TRUE)
+    data.sample.pre_d = data[data$Diabetes == 1,][sample.pre_d,]
+    
+    sample.d = sample(1:length(data[data$Diabetes == 2,]), size=n, replace=TRUE)
+    data.sample.d = data[data$Diabetes == 2,][sample.d,]
+    
+    data.sample = rbind(data.sample.no_d, data.sample.pre_d, data.sample.d)
+    
+    ret[[i]] = data.sample
+  }
+  
+  return(ret)
+}
+
+normal_boot = function(data_list, factors) {
+  # For each factor of interest
+  ret = list()
+  for (col_name in factors) {
+    # For no, pre, and diabetes
+    combo = list()
+    for (d in 0:2) {
+      data.stats = setNames(data.frame(matrix(ncol = 4, nrow = length(data_list))),
+                 c("mean", "sd", "lower", "upper"))
+      # For each sample
+      for (i in 1:length(data_list)) {
+        data.sample = data_list[[i]] %>% filter(Diabetes==d) %>% pull(col_name)
+        
+        data.mean = mean(data.sample)
+        data.sd = sd(data.sample)
+        
+        delta = pnorm((1-0.95)/2)*data.sd
+        data.lower = data.mean-delta
+        data.upper = data.mean+delta
+        
+        data.stats[i,] = c(data.mean, data.sd, data.lower, data.upper)
+      }
+      theta.hat = mean(data.stats$mean)
+      theta.se = sd(data.stats$mean)
+      
+      delta = pnorm((1-0.95)/2)*theta.se
+      theta.lower = theta.se-delta
+      theta.upper = theta.se+delta
+      
+      data.stats[length(data_list)+1,] = c(theta.hat, theta.se, theta.lower, theta.upper)
+      
+      combo[[d+1]] = data.stats
+    }
+    ret[[col_name]] = combo
+  }
+  return(ret)
+}
+
+student_t_boot = function(data, factors) {
+  
+}
+```
+
+```{r test}
+test_sample = bootSample(data.main, 5, 10)
+test_stats = normal_boot(test_sample,
+                         c("Income", "BMI", "GenHlth", "HighBP", "AnyHealthcare"))
+```
