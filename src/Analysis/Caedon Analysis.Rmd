@@ -1,4 +1,9 @@
-Caedon Analysis Rmd
+---
+title: "Caedon Analysis BCa"
+author: "Caedon Ott"
+date: '2022-11-17'
+output: pdf_document
+---
 
 ```{r}
 library(tidyverse)
@@ -198,7 +203,7 @@ for(i in 1:n){
    #Remove ith data point
    xnew <- data[-i]
    #Estimate theta
-   theta_jack <- var(xnew)
+   theta_jack <- mean(xnew)
    I[i] <- (n-1)*(theta_hat - theta_jack)
 }
 #Estimate a
@@ -226,8 +231,9 @@ bca_CI <- function(theta_boot,theta_hat,m){
 }
 
 bca_compile <- function(data0,data1,theta_hat1,theta_hat2,m,n){
-  data.stats = setNames(data.frame(matrix(ncol = 6, nrow = length(m)*length(n))),
-                 c("no_diabetes_mean", "diabetes_mean", "no_diabetes_sd", "diabetes_sd","mean_diff_lower", "mean_diff_upper"))
+  data.stats = setNames(data.frame(matrix(ncol = 10, nrow = length(m)*length(n))),
+                 c("mean1", "sd1","ci_1_lower","ci_1_upper","mean2", "sd2","ci_2_lower","ci_2_upper","mean_diff_lower", "mean_diff_upper"))
+  row.names(data.stats) <- c("m5,n10","m5,n25","m5,n75","m5,n125","m5,n250","m10,n10","m10,n25","m10,n75","m10,n125","m10,n250","m15,n10","m15,n25","m15,n75","m15,n125","m15,n250","m30,n10","m30,n25","m30,n75","m30,n125","m30,n250","m50,n10","m50,n25","m50,n75","m50,n125","m50,n250")
   counter=1
   for(r in 1:length(m)){
     for(c in 1:length(n)){
@@ -249,9 +255,11 @@ bca_compile <- function(data0,data1,theta_hat1,theta_hat2,m,n){
   
   
   
-      b_ci_diff <- bca_CI(b_mean_diff,b_theta_hat_diff,m)
+      b_ci_diff <- bca_CI(b_mean_diff,b_theta_hat_diff,m[r])
+      b0_ci <- bca_CI(b0_mean,theta_hat1,m[r])
+      b1_ci <- bca_CI(b1_mean,theta_hat2,m[r])
       
-      data.stats[counter,] <- c(mean(b0_mean),mean(b1_mean),mean(b0_se),mean(b1_se),b_ci_diff[1],b_ci_diff[2])
+      data.stats[counter,] <- c(mean(b0_mean),mean(b0_se),b0_ci[1],b0_ci[2],mean(b1_mean),mean(b1_se),b1_ci[1],b1_ci[2],b_ci_diff[1],b_ci_diff[2])
       counter <- counter + 1
     }
   }

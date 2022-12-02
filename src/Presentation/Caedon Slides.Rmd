@@ -1,0 +1,194 @@
+---
+
+title: "Caedon Slides"
+author: "Caedon Ott"
+date: '2022-12-1'
+output: ioslides_presentation
+
+---
+---
+```{r functions}
+f1 <- function(data, m,n){
+
+  bootstrap_data <- list()
+  for(i in 1:m){
+    temp_sample_ind <- sample.int(length(data), n)
+    bootstrap_data[[i]] <- data[temp_sample_ind]
+  }
+  return(bootstrap_data)
+}
+
+b_means <- function(data,m){
+  
+  bootstrap_means <- rep(0,m)
+  for(row in 1:m){
+    row_vector <- data[[row]]
+    bootstrap_means[row] <- mean(row_vector)
+  }
+  return(bootstrap_means)
+}
+b_sds <- function(data,m){
+  
+  bootstrap_sds <- rep(0,m)
+  for(row in 1:m){
+    row_vector <- data[[row]]
+    bootstrap_sds[row] <- sd(row_vector)
+  }
+  return(bootstrap_sds)
+}
+
+a_est <- function(data,theta_hat){
+  n <- length(data)
+  I <- rep(NA, n)
+for(i in 1:n){
+   #Remove ith data point
+   xnew <- data[-i]
+   #Estimate theta
+   theta_jack <- mean(xnew)
+   I[i] <- (n-1)*(theta_hat - theta_jack)
+}
+#Estimate a
+  a_hat <- (sum(I^3)/sum(I^2)^1.5)/6
+  return(a_hat)
+}
+
+
+bca_CI <- function(theta_boot,theta_hat,m){
+
+  alpha <- 0.05
+  u <- c(alpha/2, 1-alpha/2) 
+  z0 <- qnorm(mean(theta_boot <= theta_hat))
+  zu <- qnorm(u)
+  a <- 0
+  #because the sample size of our data set is so large, the computation
+  #is too intensive for rstudio to conduct. With such a large data set a should
+  #be close to zero anyways, so I elected to choose zero. 
+  
+  u_adjusted <- pnorm(z0 + (z0+zu)/(1-a*(z0+zu)))
+  #u_adjusted <- pnorm(z0 + (z0+zu)/(1-a_approx*(z0+zu))) 
+  conf_int <- quantile(theta_boot,u_adjusted)
+  return(conf_int)
+  
+}
+
+bca_compile <- function(data0,data1,theta_hat1,theta_hat2,m,n){
+  data.stats = setNames(data.frame(matrix(ncol = 10, nrow = length(m)*length(n))),
+                 c("mean1", "sd1","ci_1_lower","ci_1_upper","mean2", "sd2","ci_2_lower","ci_2_upper","mean_diff_lower", "mean_diff_upper"))
+  row.names(data.stats) <- c("m5,n10","m5,n25","m5,n75","m5,n125","m5,n250","m10,n10","m10,n25","m10,n75","m10,n125","m10,n250","m15,n10","m15,n25","m15,n75","m15,n125","m15,n250","m30,n10","m30,n25","m30,n75","m30,n125","m30,n250","m50,n10","m50,n25","m50,n75","m50,n125","m50,n250")
+  counter=1
+  for(r in 1:length(m)){
+    for(c in 1:length(n)){
+      b0 <- f1(data0,m[r],n[c])
+      b0_mean <- b_means(b0,m[r])
+      b0_se <- b_sds(b0,m[r])
+  
+      b1 <- f1(data1,m[r],n[c])
+      b1_mean <- b_means(b1,m[r])
+      b1_se <- b_sds(b1,m[r])
+  
+      b_mean_diff <- rep(NA,m[r])
+      b_se_diff <- rep(NA,m[r])
+      for(i in 1:m[r]){
+        b_mean_diff[i] <- b0_mean[i]-b1_mean[i]
+        b_se_diff[i] <- b0_se[i]-b1_se[i]
+      }
+      b_theta_hat_diff <- theta_hat1-theta_hat2
+  
+  
+  
+      b_ci_diff <- bca_CI(b_mean_diff,b_theta_hat_diff,m[r])
+      b0_ci <- bca_CI(b0_mean,theta_hat1,m[r])
+      b1_ci <- bca_CI(b1_mean,theta_hat2,m[r])
+      
+      data.stats[counter,] <- c(mean(b0_mean),mean(b0_se),b0_ci[1],b0_ci[2],mean(b1_mean),mean(b1_se),b1_ci[1],b1_ci[2],b_ci_diff[1],b_ci_diff[2])
+      counter <- counter + 1
+    }
+  }
+  
+  
+  return(data.stats)
+  
+}
+```
+
+
+
+---
+Bias Corrected and Accelerated Confidence Intervals
+- Early struggles + acceleration constant
+- Show equation, talk about a heading to zero
+- Distribution of bca difference of mean CI's 
+- Hypothesis test
+
+
+---
+$g(u) = \hat{F}^{-1}(\phi(z_0 + \frac{z_0 + z_u}{1-a(z_0+z_u)}))$
+
+  Lower bound = $g(\alpha/2)$, Upper bound = $g(1-\alpha/2)$
+  $\phi$ is the standard normal cdf 
+  $\hat{F}$ is the bootstrap cdf
+  $z_0 = \phi^{-1}F(\hat{\theta})$, quantile of mean of theta_boot <= theta_hat
+  $z_u = \phi^{-1}(u)$, quantiles of our desired bounds 
+  
+$\hat{a} = \frac{1}{6}\frac{\sum_{i=1}^n I_i^3}{(\sum_{i=1}^n I_i^2)^{3/2}}$
+  
+$I_i = (n-1)(\hat{\theta}-\hat{\theta}_{-i})$ finite sample jacknife approx.
+___
+
+---
+
+```{r,echo=FALSE}
+library(ggplot2)
+diab.data1<- read_csv("~/STAT400/Project 1/data/diabetes_012_health_indicators_BRFSS2015.csv")
+nodib <- diab.data1 |> 
+  filter(Diabetes_012==0)|>
+  select(HighBP, HighChol, BMI, AnyHealthcare, GenHlth, Income)
+
+predib <- diab.data1 |>
+  filter(Diabetes_012==1)|>
+  select(HighBP, HighChol, BMI, AnyHealthcare, GenHlth, Income)
+
+dib <- diab.data1 |>
+  filter(Diabetes_012==2)|>
+  select(HighBP, HighChol, BMI, AnyHealthcare, GenHlth, Income)
+
+m_vec <- c(5,10,15,30,50)
+n_vec <- c(10,25,75,125,250)
+
+highBP <- c(nodib$HighBP,predib$HighBP,dib$HighBP)
+highBPlabel <- c(rep("no_diab",length(nodib$HighBP)),rep("pre_diab",length(predib$HighBP)),rep("diab",length(dib$HighBP)))
+hBP <- data.frame(highBP, group = highBPlabel)
+x02 <- bca_compile(nodib$HighBP,dib$HighBP,mean(nodib$HighBP),mean(dib$HighBP),m_vec,n_vec)
+
+
+```
+```{r}
+ggplot(hBP, aes(x = highBP, colour = group))+
+  geom_histogram()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Due to the fact that we wanted to experiment with different n sizes, we did not -->
+<!-- use the boot package. However, it still serves as a useful tool to see if your  -->
+<!-- numbers are close. -->
+
+<!-- Early on, I noticed I was unable to compute the confidence interval. I kept -->
+<!-- getting errors about bound restrictions and infinite sizes, and my compiler would -->
+<!-- run for minutes on end without ever reaching a finish. I went to check my work -->
+<!-- against the boot package bca confidence interval, and ran into the same issue. -->
+<!-- How come the bca confidence interval couldnt be computed for this data set?  -->
+
+<!-- After many many looks over the equation, I realized that my sample size was actually -->
+<!-- too large for the computation. When estimating the acceleration constant, it compares -->
+<!-- the variance of the entire da -->
