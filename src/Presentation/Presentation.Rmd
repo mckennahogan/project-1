@@ -1,0 +1,63 @@
+---
+title: "Bootstrapping Diabetes Data to Illuminate Factors"
+author: "Jorie Alvis, McKenna Hogan, Cadeon Ott"
+output: powerpoint_presentation
+---
+
+```{r libraries, message=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse)
+library(knitr)
+library(dplyr)
+library(simpleboot)
+library(boot) 
+library(kableExtra)
+```
+
+```{r McKenna data, message=FALSE, warning=FALSE, include=FALSE}
+#skewed data
+diab.data1<- read_csv("~/STAT400/Project 1/data/diabetes_012_health_indicators_BRFSS2015.csv")
+#unskewed data
+diab.data2<- 
+  read_csv("~/STAT400/Project 1/data/diabetes_binary_5050split_health_indicators_BRFSS2015.csv")
+diab.data3<- read_csv("~/STAT400/Project 1/data/diabetes_binary_health_indicators_BRFSS2015.csv")
+
+nodiab.only.1<-diab.data1|>
+  filter(Diabetes_012==0)|>
+  select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
+prediab.only.1<-diab.data1|>
+  filter(Diabetes_012==1)|>
+  select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
+diab.only.1<-diab.data1|>
+  filter(Diabetes_012==2)|>
+  select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
+
+HighBP0<-nodiab.only.1$HighBP
+HighBP1<-prediab.only.1$HighBP
+HighBP2<-diab.only.1$HighBP
+
+HighChol0<-nodiab.only.1$HighChol
+HighChol1<-prediab.only.1$HighChol
+HighChol2<-diab.only.1$HighChol
+
+BMI0<-nodiab.only.1$BMI
+BMI1<-prediab.only.1$BMI
+BMI2<-diab.only.1$BMI
+
+AnyHealthcare0<-nodiab.only.1$AnyHealthcare
+AnyHealthcare1<-prediab.only.1$AnyHealthcare
+AnyHealthcare2<-diab.only.1$AnyHealthcare
+
+GenHlth0<-nodiab.only.1$GenHlth
+GenHlth1<-prediab.only.1$GenHlth
+GenHlth2<-diab.only.1$GenHlth
+
+Income0<-nodiab.only.1$Income
+Income1<-prediab.only.1$Income
+Income2<-diab.only.1$Income
+```
+
+
+
+
+
+
