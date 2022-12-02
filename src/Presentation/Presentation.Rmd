@@ -13,6 +13,8 @@ library(boot)
 library(kableExtra)
 ```
 
+##McKenna
+
 ```{r McKenna data, message=FALSE, warning=FALSE, include=FALSE}
 #skewed data
 diab.data1<- read_csv("~/STAT400/Project 1/data/diabetes_012_health_indicators_BRFSS2015.csv")
@@ -56,8 +58,12 @@ Income1<-prediab.only.1$Income
 Income2<-diab.only.1$Income
 ```
 
+```{r Mckenna graphs, echo=FALSE}
+
+```
+
+##Cadeon
 
 
-
-
+##Jorie
 
