@@ -181,14 +181,14 @@ b_means <- function(data,m){
   }
   return(bootstrap_means)
 }
-b_thetas <- function(data,m){
+b_sds <- function(data,m){
   
-  bootstrap_thetas <- rep(0,m)
+  bootstrap_sds <- rep(0,m)
   for(row in 1:m){
     row_vector <- data[[row]]
-    bootstrap_thetas[row] <- var(row_vector)
+    bootstrap_sds[row] <- sd(row_vector)
   }
-  return(bootstrap_thetas)
+  return(bootstrap_sds)
 }
 
 a_est <- function(data,theta_hat){
@@ -211,11 +211,8 @@ bca_CI <- function(theta_boot,theta_hat,m){
 
   alpha <- 0.05
   u <- c(alpha/2, 1-alpha/2) 
-  print(u)
   z0 <- qnorm(mean(theta_boot <= theta_hat))
-  print(z0)
   zu <- qnorm(u)
-  print(zu)
   a <- 0
   #because the sample size of our data set is so large, the computation
   #is too intensive for rstudio to conduct. With such a large data set a should
@@ -223,57 +220,110 @@ bca_CI <- function(theta_boot,theta_hat,m){
   
   u_adjusted <- pnorm(z0 + (z0+zu)/(1-a*(z0+zu)))
   #u_adjusted <- pnorm(z0 + (z0+zu)/(1-a_approx*(z0+zu))) 
-  print(u_adjusted)
   conf_int <- quantile(theta_boot,u_adjusted)
   return(conf_int)
   
 }
 
-nodib_HighBP <- f1(nodib$HighBP, 5, 10)
-mean_nodib_HighBP <- b_means(nodib_HighBP,5)
+bca_compile <- function(data0,data1,theta_hat1,theta_hat2,m,n){
+  data.stats = setNames(data.frame(matrix(ncol = 6, nrow = length(m)*length(n))),
+                 c("no_diabetes_mean", "diabetes_mean", "no_diabetes_sd", "diabetes_sd","mean_diff_lower", "mean_diff_upper"))
+  counter=1
+  for(r in 1:length(m)){
+    for(c in 1:length(n)){
+      b0 <- f1(data0,m[r],n[c])
+      b0_mean <- b_means(b0,m[r])
+      b0_se <- b_sds(b0,m[r])
+  
+      b1 <- f1(data1,m[r],n[c])
+      b1_mean <- b_means(b1,m[r])
+      b1_se <- b_sds(b1,m[r])
+  
+      b_mean_diff <- rep(NA,m[r])
+      b_se_diff <- rep(NA,m[r])
+      for(i in 1:m[r]){
+        b_mean_diff[i] <- b0_mean[i]-b1_mean[i]
+        b_se_diff[i] <- b0_se[i]-b1_se[i]
+      }
+      b_theta_hat_diff <- theta_hat1-theta_hat2
+  
+  
+  
+      b_ci_diff <- bca_CI(b_mean_diff,b_theta_hat_diff,m)
+      
+      data.stats[counter,] <- c(mean(b0_mean),mean(b1_mean),mean(b0_se),mean(b1_se),b_ci_diff[1],b_ci_diff[2])
+      counter <- counter + 1
+    }
+  }
+  
+  
+  return(data.stats)
+  
+}
+
+# nodib_HighBP <- f1(nodib$HighBP, 5, 10)
+# mean_nodib_HighBP <- b_means(nodib_HighBP,5)
+# 
+# 
+# nodib_HighChol <- f1(nodib$HighChol, 5, 10)
+# mean_nodib_HighChol <- b_means(nodib_HighChol,5)
+# 
+# nodib_BMI <- f1(nodib$BMI, 5, 10)
+# mean_nodib_BMI <- b_means(nodib_BMI, 5)
+# 
+# nodib_AnyHealthcare <- f1(nodib$AnyHealthcare, 5, 10)
+# mean_nodib_AnyHealthcare <- b_means(nodib_AnyHealthcare,5)
+# 
+# nodib_GenHlth <- f1(nodib$GenHlth, 5, 10)
+# mean_nodib_GenHlth <- b_means(nodib_GenHlth,5)
+# 
+# nodib_Income <- f1(nodib$Income, 5, 10)
+# mean_nodib_Income <- b_means(nodib_Income,5)
+# 
+# ##############################################
+# 
+# dib_HighBP <- f1(dib$HighBP, 5, 10)
+# mean_dib_HighBP <- b_means(dib_HighBP,5)
+# 
+# dib_HighChol <- f1(dib$HighChol, 5, 10)
+# mean_dib_HighChol <- b_means(dib_HighChol,5)
+# 
+# dib_BMI <- f1(dib$BMI, 5, 10)
+# mean_dib_BMI <- b_means(dib_BMI, 5)
+# 
+# dib_AnyHealthcare <- f1(dib$AnyHealthcare, 5, 10)
+# mean_dib_AnyHealthcare <- b_means(dib_AnyHealthcare,5)
+# 
+# dib_GenHlth <- f1(dib$GenHlth, 5, 10)
+# mean_dib_GenHlth <- b_means(dib_GenHlth,5)
+# 
+# dib_Income <- f1(dib$Income, 5, 10)
+# mean_dib_Income <- b_means(dib_Income,5)
+# 
+# nodib_HighBP_theta_hat <- mean(nodib$HighBP)
+# nodib_HighBP_theta_boot <- b_means(nodib_HighBP,5)
+# #nodib_HighBP_a <- a_est(nodib$HighBP,nodib_HighBP_theta_hat)
+# nodib_HighBP_confint <- bca_CI(nodib_HighBP_theta_boot,nodib_HighBP_theta_hat)
 
 
-nodib_HighChol <- f1(nodib$HighChol, 5, 10)
-mean_nodib_HighChol <- b_means(nodib_HighChol,5)
-
-nodib_BMI <- f1(nodib$BMI, 5, 10)
-mean_nodib_BMI <- b_means(nodib_BMI, 5)
-
-nodib_AnyHealthcare <- f1(nodib$AnyHealthcare, 5, 10)
-mean_nodib_AnyHealthcare <- b_means(nodib_AnyHealthcare,5)
-
-nodib_GenHlth <- f1(nodib$GenHlth, 5, 10)
-mean_nodib_GenHlth <- b_means(nodib_GenHlth,5)
-
-nodib_Income <- f1(nodib$Income, 5, 10)
-mean_nodib_Income <- b_means(nodib_Income,5)
-
-##############################################
-
-dib_HighBP <- f1(dib$HighBP, 5, 10)
-mean_dib_HighBP <- b_means(dib_HighBP,5)
-
-dib_HighChol <- f1(dib$HighChol, 5, 10)
-mean_dib_HighChol <- b_means(dib_HighChol,5)
-
-dib_BMI <- f1(dib$BMI, 5, 10)
-mean_dib_BMI <- b_means(dib_BMI, 5)
-
-dib_AnyHealthcare <- f1(dib$AnyHealthcare, 5, 10)
-mean_dib_AnyHealthcare <- b_means(dib_AnyHealthcare,5)
-
-dib_GenHlth <- f1(dib$GenHlth, 5, 10)
-mean_dib_GenHlth <- b_means(dib_GenHlth,5)
-
-dib_Income <- f1(dib$Income, 5, 10)
-mean_dib_Income <- b_means(dib_Income,5)
-
-nodib_HighBP_theta_hat <- var(nodib$HighBP)
-nodib_HighBP_theta_boot <- b_thetas(nodib_HighBP,5)
-#nodib_HighBP_a <- a_est(nodib$HighBP,nodib_HighBP_theta_hat)
-nodib_HighBP_confint <- bca_CI(nodib_HighBP_theta_boot,nodib_HighBP_theta_hat)
 
 
+
+```
+
+```{r bca CI for mean difference between no diabetes and diabetes}
+m_vec <- c(5,10,15,30,50)
+n_vec <- c(10,25,75,125,250)
+highBP_diff <- bca_compile(nodib$HighBP,dib$HighBP,mean(nodib$HighBP),mean(dib$HighBP),m_vec,n_vec)
+highChol_diff <- bca_compile(nodib$HighChol,dib$HighChol,mean(nodib$HighChol),mean(dib$HighChol),m_vec,n_vec)
+bmi_diff <- bca_compile(nodib$BMI,dib$BMI,mean(nodib$BMI),mean(dib$BMI),m_vec,n_vec)
+AnyHealthcare_diff <- bca_compile(nodib$AnyHealthcare,dib$AnyHealthcare,mean(nodib$AnyHealthcare),mean(dib$AnyHealthcare),m_vec,n_vec)
+GenHlth_diff <- bca_compile(nodib$GenHlth,dib$GenHlth,mean(nodib$GenHlth),mean(dib$GenHlth),m_vec,n_vec)
+Income_diff <- bca_compile(nodib$Income,dib$Income,mean(nodib$Income),mean(dib$Income),m_vec,n_vec)
+
+
+
+highBP_diff_m5
 
 
 
