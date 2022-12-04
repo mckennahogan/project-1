@@ -1,0 +1,207 @@
+---
+title: "kenna presentation"
+author: "McKenna Hogan"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(knitr)
+library(dplyr)
+library(simpleboot)
+library(boot) 
+library(kableExtra)
+library(gridExtra)
+```
+
+```{r data, message=FALSE, warning=FALSE, include=FALSE}
+#skewed data
+diab.data1<- read_csv("~/STAT400/Project 1/data/diabetes_012_health_indicators_BRFSS2015.csv")
+#unskewed data
+diab.data2<- 
+  read_csv("~/STAT400/Project 1/data/diabetes_binary_5050split_health_indicators_BRFSS2015.csv")
+diab.data3<- read_csv("~/STAT400/Project 1/data/diabetes_binary_health_indicators_BRFSS2015.csv")
+
+nodiab.only.1<-diab.data1|>
+  filter(Diabetes_012==0)|>
+  select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
+prediab.only.1<-diab.data1|>
+  filter(Diabetes_012==1)|>
+  select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
+diab.only.1<-diab.data1|>
+  filter(Diabetes_012==2)|>
+  select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
+```
+
+```{r new function data, message=FALSE, warning=FALSE, include=FALSE}
+
+HighBP0<-nodiab.only.1$HighBP
+HighBP1<-prediab.only.1$HighBP
+HighBP2<-diab.only.1$HighBP
+
+HighChol0<-nodiab.only.1$HighChol
+HighChol1<-prediab.only.1$HighChol
+HighChol2<-diab.only.1$HighChol
+
+BMI0<-nodiab.only.1$BMI
+BMI1<-prediab.only.1$BMI
+BMI2<-diab.only.1$BMI
+
+AnyHealthcare0<-nodiab.only.1$AnyHealthcare
+AnyHealthcare1<-prediab.only.1$AnyHealthcare
+AnyHealthcare2<-diab.only.1$AnyHealthcare
+
+GenHlth0<-nodiab.only.1$GenHlth
+GenHlth1<-prediab.only.1$GenHlth
+GenHlth2<-diab.only.1$GenHlth
+
+Income0<-nodiab.only.1$Income
+Income1<-prediab.only.1$Income
+Income2<-diab.only.1$Income
+
+```
+
+```{r function, message=FALSE, warning=FALSE, include=FALSE}
+diff.means<-function(data0,data1,data2,R){
+  
+  
+  no_pre<- two.boot(data0, data1, "mean", R = R)
+  pre_diab<- two.boot(data1, data2, "mean", R = R)
+  diab_no<- two.boot(data2, data0, "mean", R = R)
+  
+  se.no_pre<-sd(no_pre$t)
+  se.pre_diab<-sd(pre_diab$t)
+  se.diab_no<-sd(diab_no$t)
+  
+  bias.no_pre<-rep(NA,R)
+  bias.pre_diab<-rep(NA,R)
+  bias.diab_no<-rep(NA,R)
+  for (i in 1:R){
+    bias.no_pre[i]<-no_pre$t[i]-no_pre$t0
+    bias.pre_diab[i]<-pre_diab$t[i]-pre_diab$t0
+    bias.diab_no[i]<-diab_no$t[i]-diab_no$t0
+  }
+  bias.no_pre<-mean(bias.no_pre)
+  bias.pre_diab<-mean(bias.pre_diab)
+  bias.diab_no<-mean(bias.diab_no)
+  
+  boot.no_pre<-boot.ci(no_pre,type=c("perc","basic"))
+  boot.pre_diab<-boot.ci(pre_diab,type=c("perc","basic"))
+  boot.diab_no<-boot.ci(diab_no,type=c("perc","basic"))
+  
+  plot.no_pre<-ggplot() +
+    geom_histogram(aes(no_pre$t), fill="darkgoldenrod1") +
+    geom_segment(aes(y=25,yend=25,x=boot.no_pre$percent[4],
+                     xend=boot.no_pre$percent[5], col="percentile"),size=1.5)+
+    geom_segment(aes(y=35,yend=35,x=boot.no_pre$basic[4],
+                     xend=boot.no_pre$basic[5],col="basic"),size=1.5)+
+    xlab("mean(no diabetes) - mean(prediabetes)")
+  
+  plot.pre_diab<-ggplot() +
+    geom_histogram(aes(pre_diab$t),fill="deepskyblue") +
+    geom_segment(aes(y=25,yend=25,x=boot.pre_diab$percent[4],
+                     xend=boot.pre_diab$percent[5], col="percentile"),size=1.5)+
+    geom_segment(aes(y=35,yend=35,x=boot.pre_diab$basic[4],
+                     xend=boot.pre_diab$basic[5],col="basic"),size=1.5)+
+    xlab("mean(prediabetes) - mean(diabetes)")
+  plot.diab_no<-ggplot() +
+    geom_histogram(aes(diab_no$t),fill="coral") +
+    geom_segment(aes(y=25,yend=25,x=boot.diab_no$percent[4],
+                     xend=boot.diab_no$percent[5], col="percentile"),size=1.5)+
+    geom_segment(aes(y=35,yend=35,x=boot.diab_no$basic[4],
+                     xend=boot.diab_no$basic[5],col="basic"),size=1.5)+
+    xlab("mean(diabetes) - mean(no diabetes)")
+
+  print(boot.no_pre$basic)
+  return(list(plot.no_pre, boot.no_pre,
+              plot.pre_diab, boot.pre_diab,
+              plot.diab_no, boot.diab_no))
+}
+
+```
+
+```{r calling each variable, message=FALSE, warning=FALSE, include=FALSE}
+HighBP.list<-diff.means(HighBP0,HighBP1,HighBP2,1000)
+# HighChol.list<-diff.means(HighChol0,HighChol1,HighChol2,1000)
+# BMI.list<-diff.means(BMI0,BMI1,BMI2,1000)
+# AnyHealthcare.list<-diff.means(AnyHealthcare0,AnyHealthcare1,AnyHealthcare2,1000)
+# GenHlth.list<-diff.means(GenHlth0,GenHlth1,GenHlth2,1000)
+Income.list<-diff.means(Income0,Income1,Income2,1000)
+
+```
+
+
+## Percentile and Basic Bootstraps
+
+- I analyzed the variables HighBP, HighChol, BMI, AnyHealthcare, GenHlth, 
+and Income for differences in means among no diabetes, prediabetes, and diabetes.
+
+- Overall, I found that there was a significant differece in means for all the
+variables analyzed among the combinations of no diabetes, prediabetes, and diabetes.
+
+- There was small difference between the CI's for the percentile and basic bootstraps
+which matched my findings for small bias
+
+
+## HighBP No Diabetes and Prediabetes
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+HighBP.list[1]
+```
+
+## HighBP No Diabetes and Prediabetes
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+HighBP.list[2]
+```
+
+## HighBP Prediabetes and Diabetes
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+HighBP.list[3]
+```
+
+## HighBP Prediabetes and Diabetes
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+HighBP.list[4]
+```
+
+## HighBP Diabetes and No Diabetes
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+HighBP.list[5]
+```
+
+## HighBP Diabetes and No Diabetes
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+HighBP.list[6]
+```
+
+
+## Income No Diabetes and Prediabetes
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+Income.list[1]
+```
+
+## Income No Diabetes and Prediabetes
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+Income.list[2]
+```
+
+## Income Prediabetes and Diabetes
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+Income.list[3]
+```
+
+## Income prediabetes and diabetes
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+Income.list[4]
+```
+
+## Income dieabetes and no diabetes
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+Income.list[5]
+```
+
+## Income diabetes and no diabetes
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+Income.list[6]
+```
+
