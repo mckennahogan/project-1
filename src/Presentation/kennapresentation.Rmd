@@ -39,6 +39,7 @@ diab.only.1<-diab.data1|>
   select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
 ```
 
+
 ```{r new function data, message=FALSE, warning=FALSE, include=FALSE}
 
 HighBP0<-nodiab.only.1$HighBP
@@ -202,7 +203,7 @@ pre_diab.kable<-kable(pre_diab.table,caption="pre-diab",
 ##
 
 diab_no.row1<-c(HighBP.list[[9]],HighBP.list[[6]][["percent"]][[4]],
-              HighBP.list[[2]][["percent"]][[5]],
+              HighBP.list[[6]][["percent"]][[5]],
         HighBP.list[[6]][["basic"]][[4]],HighBP.list[[6]][["basic"]][[5]])
 diab_no.row2<-c(HighChol.list[[9]],HighChol.list[[2]][["percent"]][[4]],
         HighChol.list[[6]][["percent"]][[5]],
