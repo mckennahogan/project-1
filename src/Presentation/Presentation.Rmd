@@ -1,7 +1,10 @@
 ---
 title: "Bootstrapping Diabetes Data to Illuminate Factors"
 author: "Jorie Alvis, McKenna Hogan, Cadeon Ott"
-output: powerpoint_presentation
+output:
+  ioslides_presentation:
+    widescreen: true
+    smaller: true
 ---
 
 ```{r libraries, message=FALSE, warning=FALSE, include=FALSE}
@@ -11,17 +14,24 @@ library(dplyr)
 library(simpleboot)
 library(boot) 
 library(kableExtra)
+library(patchwork)
+
+set.seed(400)
 ```
+
+## Dataset Overview
+
+## Bootstrapping Overview
 
 ##McKenna
 
 ```{r McKenna data, message=FALSE, warning=FALSE, include=FALSE}
 #skewed data
-diab.data1<- read_csv("~/STAT400/Project 1/data/diabetes_012_health_indicators_BRFSS2015.csv")
+diab.data1<- read_csv("../../data/diabetes_012_health_indicators_BRFSS2015.csv")
 #unskewed data
 diab.data2<- 
-  read_csv("~/STAT400/Project 1/data/diabetes_binary_5050split_health_indicators_BRFSS2015.csv")
-diab.data3<- read_csv("~/STAT400/Project 1/data/diabetes_binary_health_indicators_BRFSS2015.csv")
+  read_csv("../../data/diabetes_binary_5050split_health_indicators_BRFSS2015.csv")
+diab.data3<- read_csv("../../data/diabetes_binary_health_indicators_BRFSS2015.csv")
 
 nodiab.only.1<-diab.data1|>
   filter(Diabetes_012==0)|>
@@ -65,5 +75,580 @@ Income2<-diab.only.1$Income
 ##Cadeon
 
 
-##Jorie
 
+```{r JorDataInit, message=FALSE, warning=FALSE, include=FALSE}
+# This data has three classes
+## No-diabetes: Most observations
+## Pre-diabetes: Least observations
+## Diabetes: Response of importance
+data.main = read_csv("../../data/diabetes_012_health_indicators_BRFSS2015.csv")
+data.main = data.main %>% rename("Diabetes"="Diabetes_012")
+
+# Binary Classification
+## Same number of observations for no-diabetes and pre-diabetes/diabetes
+data.balanced = read_csv("../../data/diabetes_binary_5050split_health_indicators_BRFSS2015.csv")
+data.balanced = data.balanced %>% rename("Diabetes"="Diabetes_binary")
+
+# Binary Classification
+## More observations of no-diabetes than pre-diabetes/diabetes
+data.binary = read_csv("../../data/diabetes_binary_health_indicators_BRFSS2015.csv")
+data.binary = data.binary %>% rename("Diabetes"="Diabetes_binary")
+```
+
+```{r JorFuncs, message=FALSE, warning=FALSE, include=FALSE}
+bootSample = function(data, m, n) {
+  ret = list()
+  for (i in 1:m) {
+    sample.no_d = sample(1:length(data[data$Diabetes == 0,]), size=n, replace=TRUE)
+    data.sample.no_d = data[data$Diabetes == 0,][sample.no_d,]
+    
+    sample.pre_d = sample(1:length(data[data$Diabetes == 1,]), size=n, replace=TRUE)
+    data.sample.pre_d = data[data$Diabetes == 1,][sample.pre_d,]
+    
+    sample.d = sample(1:length(data[data$Diabetes == 2,]), size=n, replace=TRUE)
+    data.sample.d = data[data$Diabetes == 2,][sample.d,]
+    
+    data.sample = rbind(data.sample.no_d, data.sample.pre_d, data.sample.d)
+    
+    ret[[i]] = data.sample
+  }
+  
+  return(ret)
+}
+
+normal_boot = function(data_list, factors) {
+  # For each factor of interest
+  ret = list()
+  for (col_name in factors) {
+    # For no, pre, and diabetes
+    combo = list()
+    for (d in 0:2) {
+      data.stats = setNames(data.frame(matrix(ncol = 4, nrow = length(data_list))),
+                            c("mean", "sd", "lower", "upper"))
+      # For each sample
+      for (i in 1:length(data_list)) {
+        data.sample = data_list[[i]] %>% filter(Diabetes==d) %>% pull(col_name)
+        
+        data.mean = mean(data.sample)
+        data.sd = sd(data.sample)
+        
+        delta = pnorm((1-0.95/2))*data.sd
+        data.lower = data.mean-delta
+        data.upper = data.mean+delta
+        
+        data.stats[i,] = c(data.mean, data.sd, data.lower, data.upper)
+      }
+      theta.hat = mean(data.stats$mean)
+      theta.se = sd(data.stats$mean)
+      
+      delta = pnorm((1-0.95/2))*theta.se
+      theta.lower = theta.hat-delta
+      theta.upper = theta.hat+delta
+      
+      data.stats[length(data_list)+1,] = c(theta.hat, theta.se, theta.lower, theta.upper)
+      
+      combo[[d+1]] = data.stats
+    }
+    ret[[col_name]] = combo
+  }
+  return(ret)
+}
+
+student_t_boot = function(data_list, factors) {
+  # For each factor of interest
+  ret = list()
+  for (col_name in factors) {
+    # For no, pre, and diabetes
+    combo = list()
+    for (d in 0:2) {
+      # Theta hat for the whole dataset
+      data.theta_hat = mean(data.main %>% filter(Diabetes==d) %>% pull(col_name))
+      
+      data.stats = setNames(data.frame(matrix(ncol = 5, nrow = length(data_list))),
+                            c("mean", "se", "t_stat", "lower", "upper"))
+      # For each sample
+      for (i in 1:length(data_list)) {
+        data.sample = data_list[[i]] %>% filter(Diabetes==d) %>% pull(col_name)
+        
+        # re-sampled data
+        data.resample = data.frame(matrix(ncol=length(data.sample)+1, nrow=length(data_list)))
+        for (r in 1:length(data_list)){
+          resample = sample(data.sample, size=length(data.sample), replace=TRUE)
+          data.resample[r,] = cbind(resample, mean(resample))
+        }
+        data.mean = mean(data.sample)
+        data.se = sd(data.resample[,length(data.sample)+1])
+        
+        data.t_stat = (data.mean-data.theta_hat)/data.se
+        
+        data.stats[i,] = c(data.mean, data.se, data.t_stat, NA, NA)
+      }
+      theta.hat = mean(data.stats$mean)
+      theta.se = sd(data.stats$mean)
+      
+      theta.t_stat = (theta.hat-data.theta_hat)/theta.se
+      
+      theta.lower = theta.hat-abs(quantile(data.stats$t_stat, probs=c(0.05/2))*theta.se)
+      theta.upper = theta.hat+abs(quantile(data.stats$t_stat, probs=c(1-0.05/2))*theta.se)
+      
+      data.stats[length(data_list)+1,] = c(theta.hat, theta.se, theta.t_stat,
+                                           theta.lower, theta.upper)
+      
+      combo[[d+1]] = data.stats
+    }
+    ret[[col_name]] = combo
+  }
+  return(ret)
+}
+```
+
+```{r JorAnalysisInit, message=FALSE, warning=FALSE, cache=TRUE, include=FALSE}
+# The "m"s we are testing
+m_list = c(10,30,50,100,250)
+# The "n"s we are testing
+n_list = c(10,25,75,125,250)
+# Factors of interest
+factors_list = c("Income", "BMI", "GenHlth", "HighBP", "AnyHealthcare")
+
+ALL_DATA_norm = list(list(), list(), list(), list(), list())
+ALL_DATA_stud = list(list(), list(), list(), list(), list())
+for (i in 1:5) {
+  m = m_list[i]
+  for (j in 1:5) {
+    n = n_list[j]
+    
+    boot_data = bootSample(data.main, m, n)
+    ALL_DATA_norm[[i]][[j]] = normal_boot(boot_data, factors_list)
+    ALL_DATA_stud[[i]][[j]] = student_t_boot(boot_data, factors_list)
+  }
+}
+```
+
+## Standard Normal Bootstrap CI
+
+ - We used a Standard Normal Bootstrap for each classification, (No Diabetes, Pre-Diabetes, and Diabetes), and pulled out our factors of interest, (Income, BMI, GenHlth, HighBP, and AnyHealthcare).
+
+ - We also used different values of sample size, `n`, and number of samples, `m`, to showcase the power of bootstrapping with Normal distributions
+
+## Pairs of `m` and `n` values
+Tables of standard error of our estimators
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+pos_list = c("float_left", "float_left", "left")
+title_list = c("No Diabetes", "Pre-Diabetes", "Diabetes")
+
+TABLES_norm = list()
+TABLES_stud = list()
+for (factor.name in factors_list) {
+  for (d in 1:3) {
+    MEANS_norm = matrix(nrow=5,ncol=5)
+    MEANS_stud = matrix(nrow=5,ncol=5)
+    SE_norm = matrix(nrow=5,ncol=5)
+    SE_stud = matrix(nrow=5,ncol=5)
+    for (i in 1:5) {
+      for (j in 1:5) {
+        MEANS_norm[i,j] = tail(ALL_DATA_norm[[i]][[j]][[factor.name]][[d]]$mean,1)
+        MEANS_stud[i,j] = tail(ALL_DATA_stud[[i]][[j]][[factor.name]][[d]]$mean,1)
+        SE_norm[i,j] = tail(ALL_DATA_norm[[i]][[j]][[factor.name]][[d]]$sd,1)
+        SE_stud[i,j] = tail(ALL_DATA_stud[[i]][[j]][[factor.name]][[d]]$se,1)
+      }
+    }
+    t_title = paste(factor.name, title_list[d], sep=" and ")
+    
+    # Tables for standard normal
+    ############################
+    rownames(SE_norm) = paste("m=",m_list,sep="")
+    colnames(SE_norm) = paste("n=",n_list,sep="")
+    
+    means_norm_table = kable(SE_norm, caption=t_title, digits=3, format = "html") %>%
+      kable_styling(full_width=F, position=pos_list[d], font_size=8) %>%
+      row_spec(0, bold=T, font_size=14) %>% row_spec(0:5, align="c") %>%
+      column_spec(1, bold = TRUE, border_right = TRUE, width = "3.5em") %>%
+      column_spec(2:6, width = "1em") %>% row_spec(c(1,3,5), color="white", background="grey")
+    
+    TABLES_norm[[factor.name]][[d]] = means_norm_table
+    
+    # Tables for student t normal
+    ############################
+    rownames(SE_stud) = paste("m=",m_list,sep="")
+    colnames(SE_stud) = paste("n=",n_list,sep="")
+    
+    means_stud_table = kable(SE_stud, caption=t_title, digits=3, format = "html") %>%
+      kable_styling(full_width=F, position=pos_list[d], font_size=8) %>%
+      row_spec(0, bold=T, font_size=14) %>% row_spec(0:5, align="c") %>%
+      column_spec(1, bold = TRUE, border_right = TRUE, width = "3.5em") %>%
+      column_spec(2:6, width = "1em") %>% row_spec(c(1,3,5), color="white", background="grey")
+    
+    TABLES_stud[[factor.name]][[d]] = means_stud_table
+  }
+}
+TABLES_norm[["Income"]][[1]]
+TABLES_norm[["Income"]][[2]]
+TABLES_norm[["Income"]][[3]]
+
+TABLES_norm[["HighBP"]][[1]]
+TABLES_norm[["HighBP"]][[2]]
+TABLES_norm[["HighBP"]][[3]]
+
+TABLES_norm[["AnyHealthcare"]][[1]]
+TABLES_norm[["AnyHealthcare"]][[2]]
+TABLES_norm[["AnyHealthcare"]][[3]]
+```
+
+## Bootstrap t CI
+
+ - We used Student-t Bootstraping for each classification, (No Diabetes, Pre-Diabetes, and Diabetes), and pulled out our factors of interest, (Income, BMI, GenHlth, HighBP, and AnyHealthcare).
+
+ - We also used different values of sample size, `n`, and number of samples, `m`, to showcase the difference of double bootstrapping with Student-t distributions
+ 
+ - We wanted to show that larger and more samples decreased our standard error of our estimator
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+BOOT.norm = ALL_DATA_norm[[5]][[5]]
+BOOT.stud = ALL_DATA_stud[[5]][[5]]
+```
+
+## Pairs of `m` and `n` values
+Tables of standard error of our estimators
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+TABLES_stud[["Income"]][[1]]
+TABLES_stud[["Income"]][[2]]
+TABLES_stud[["Income"]][[3]]
+
+TABLES_stud[["HighBP"]][[1]]
+TABLES_stud[["HighBP"]][[2]]
+TABLES_stud[["HighBP"]][[3]]
+
+TABLES_stud[["AnyHealthcare"]][[1]]
+TABLES_stud[["AnyHealthcare"]][[2]]
+TABLES_stud[["AnyHealthcare"]][[3]]
+```
+
+## Income
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+### Tables for m=250, n=250 ###
+# Normal CI table
+norm_income_table = rbind("No Diabetes"=tail(BOOT.norm$Income[[1]],1)[,-2],
+                          "Pre-Diabetes"=tail(BOOT.norm$Income[[2]],1)[,-2],
+                          "Diabetes"=tail(BOOT.norm$Income[[3]],1)[,-2])
+
+norm_income_kable = kable(norm_income_table, caption="Normal CI on Income",
+                          digits=3, format = "html") %>%
+      kable_styling("striped", full_width=F, position="float_left", font_size=10) %>%
+      row_spec(0, bold = TRUE, font_size=14, align="c") %>% row_spec(0:3, align="c") %>%
+      column_spec(1, bold = TRUE, border_right = TRUE, width = "7em")
+
+# Student t table
+stud_income_table = rbind("No Diabetes"=tail(BOOT.stud$Income[[1]],1)[,-c(2,3)],
+                          "Pre-Diabetes"=tail(BOOT.stud$Income[[2]],1)[,-c(2,3)],
+                          "Diabetes"=tail(BOOT.stud$Income[[3]],1)[,-c(2,3)])
+
+stud_income_kable = kable(stud_income_table, caption="Student-t CI on Income",
+                          digits=3, format = "html") %>%
+      kable_styling("striped", full_width=F, position="float_left", font_size=10) %>%
+      row_spec(0, bold = TRUE, font_size=14, align="c") %>% row_spec(0:3, align="c") %>%
+      column_spec(1, bold = TRUE, border_right = TRUE, width = "7em")
+
+norm_income_kable
+stud_income_kable
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+income.norm = rbind(cbind("Diabetes"=rep(0,251),"Income"=BOOT.norm[["Income"]][[1]]$mean),
+                    cbind("Diabetes"=rep(1,251),"Income"=BOOT.norm[["Income"]][[2]]$mean),
+                    cbind("Diabetes"=rep(2,251),"Income"=BOOT.norm[["Income"]][[3]]$mean))
+income.norm = as.data.frame(income.norm)
+income.norm$Diabetes = as.factor(income.norm$Diabetes)
+
+income_norm_plot = ggplot() +
+  geom_histogram(aes(x=income.norm$Income, y=..count../sum(..count..)*100,
+                     fill=income.norm$Diabetes), position="identity", bins=35) +
+  geom_segment(aes(x=norm_income_table$lower, xend=norm_income_table$upper,
+                   y=seq(0.5, 4, length.out=3), yend=seq(0.5, 4, length.out=3)),
+               color=c("red", "green","blue"), fill="black", size=1) +
+  labs(title="Normal CI on Income", x="Income", y="Frequency", fill="Diabetes")
+
+#########################
+income.stud = rbind(cbind("Diabetes"=rep(0,251),"Income"=BOOT.stud[["Income"]][[1]]$mean),
+                    cbind("Diabetes"=rep(1,251),"Income"=BOOT.stud[["Income"]][[2]]$mean),
+                    cbind("Diabetes"=rep(2,251),"Income"=BOOT.stud[["Income"]][[3]]$mean))
+income.stud = as.data.frame(income.stud)
+income.stud$Diabetes = as.factor(income.stud$Diabetes)
+
+income_stud_plot = ggplot() +
+  geom_histogram(aes(x=income.stud$Income, y=..count../sum(..count..)*100,
+                     fill=income.stud$Diabetes), position="identity", bins=35) +
+  geom_segment(aes(x=stud_income_table$lower, xend=stud_income_table$upper,
+                   y=seq(1,6, length.out=3), yend=seq(1,6, length.out=3)),
+               color=c("red", "green","blue"), fill="black", size=1) +
+  labs(title="Student t CI on Income", x="Income", y="Frequency", fill="Diabetes")
+
+income_norm_plot + income_stud_plot + plot_layout(ncol = 2, guides = "collect")
+```
+
+## BMI
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+### Tables for m=250, n=250 ###
+# Normal CI table
+norm_BMI_table = rbind("No Diabetes"=tail(BOOT.norm$BMI[[1]],1)[,-2],
+                          "Pre-Diabetes"=tail(BOOT.norm$BMI[[2]],1)[,-2],
+                          "Diabetes"=tail(BOOT.norm$BMI[[3]],1)[,-2])
+
+norm_BMI_kable = kable(norm_BMI_table, caption="Normal CI on BMI",
+                          digits=3, format = "html") %>%
+      kable_styling("striped", full_width=F, position="float_left", font_size=10) %>%
+      row_spec(0, bold = TRUE, font_size=14, align="c") %>% row_spec(0:3, align="c") %>%
+      column_spec(1, bold = TRUE, border_right = TRUE, width = "7em")
+
+# Student t table
+stud_BMI_table = rbind("No Diabetes"=tail(BOOT.stud$BMI[[1]],1)[,-c(2,3)],
+                          "Pre-Diabetes"=tail(BOOT.stud$BMI[[2]],1)[,-c(2,3)],
+                          "Diabetes"=tail(BOOT.stud$BMI[[3]],1)[,-c(2,3)])
+
+stud_BMI_kable = kable(stud_BMI_table, caption="Student-t CI on BMI",
+                          digits=3, format = "html") %>%
+      kable_styling("striped", full_width=F, position="float_left", font_size=10) %>%
+      row_spec(0, bold = TRUE, font_size=14, align="c") %>% row_spec(0:3, align="c") %>%
+      column_spec(1, bold = TRUE, border_right = TRUE, width = "7em")
+
+norm_BMI_kable
+stud_BMI_kable
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+BMI.norm = rbind(cbind("Diabetes"=rep(0,251),"BMI"=BOOT.norm[["BMI"]][[1]]$mean),
+                    cbind("Diabetes"=rep(1,251),"BMI"=BOOT.norm[["BMI"]][[2]]$mean),
+                    cbind("Diabetes"=rep(2,251),"BMI"=BOOT.norm[["BMI"]][[3]]$mean))
+BMI.norm = as.data.frame(BMI.norm)
+BMI.norm$Diabetes = as.factor(BMI.norm$Diabetes)
+
+BMI_norm_plot = ggplot() +
+  geom_histogram(aes(x=BMI.norm$BMI, y=..count../sum(..count..)*100,
+                     fill=BMI.norm$Diabetes), position="identity",bins=35) +
+  geom_segment(aes(x=norm_BMI_table$lower, xend=norm_BMI_table$upper,
+                   y=seq(1, 7, length.out=3), yend=seq(1, 7, length.out=3)),
+               color=c("red", "green","blue"), fill="black", size=1) +
+  labs(title="Normal CI on BMI", x="BMI", y="Frequency", fill="Diabetes")
+
+#########################
+BMI.stud = rbind(cbind("Diabetes"=rep(0,251),"BMI"=BOOT.stud[["BMI"]][[1]]$mean),
+                    cbind("Diabetes"=rep(1,251),"BMI"=BOOT.stud[["BMI"]][[2]]$mean),
+                    cbind("Diabetes"=rep(2,251),"BMI"=BOOT.stud[["BMI"]][[3]]$mean))
+BMI.stud = as.data.frame(BMI.stud)
+BMI.stud$Diabetes = as.factor(BMI.stud$Diabetes)
+
+BMI_stud_plot = ggplot() +
+  geom_histogram(aes(x=BMI.stud$BMI, y=..count../sum(..count..)*100,
+                     fill=BMI.stud$Diabetes), position="identity", bins=35) +
+  geom_segment(aes(x=stud_BMI_table$lower, xend=stud_BMI_table$upper,
+                   y=seq(1, 10, length.out=3), yend=seq(1, 10, length.out=3)),
+               color=c("red", "green","blue"), fill="black", size=1) +
+  labs(title="Student t CI on BMI", x="BMI", y="Frequency", fill="Diabetes")
+
+BMI_norm_plot + BMI_stud_plot + plot_layout(ncol = 2, guides = "collect")
+```
+
+## GenHlth
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+### Tables for m=250, n=250 ###
+# Normal CI table
+norm_GenHlth_table = rbind("No Diabetes"=tail(BOOT.norm$GenHlth[[1]],1)[,-2],
+                          "Pre-Diabetes"=tail(BOOT.norm$GenHlth[[2]],1)[,-2],
+                          "Diabetes"=tail(BOOT.norm$GenHlth[[3]],1)[,-2])
+
+norm_GenHlth_kable = kable(norm_GenHlth_table, caption="Normal CI on GenHlth",
+                          digits=3, format = "html") %>%
+      kable_styling("striped", full_width=F, position="float_left", font_size=10) %>%
+      row_spec(0, bold = TRUE, font_size=14, align="c") %>% row_spec(0:3, align="c") %>%
+      column_spec(1, bold = TRUE, border_right = TRUE, width = "7em")
+
+# Student t table
+stud_GenHlth_table = rbind("No Diabetes"=tail(BOOT.stud$GenHlth[[1]],1)[,-c(2,3)],
+                          "Pre-Diabetes"=tail(BOOT.stud$GenHlth[[2]],1)[,-c(2,3)],
+                          "Diabetes"=tail(BOOT.stud$GenHlth[[3]],1)[,-c(2,3)])
+
+stud_GenHlth_kable = kable(stud_GenHlth_table, caption="Student-t CI on GenHlth",
+                          digits=3, format = "html") %>%
+      kable_styling("striped", full_width=F, position="float_left", font_size=10) %>%
+      row_spec(0, bold = TRUE, font_size=14, align="c") %>% row_spec(0:3, align="c") %>%
+      column_spec(1, bold = TRUE, border_right = TRUE, width = "7em")
+
+norm_GenHlth_kable
+stud_GenHlth_kable
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+GenHlth.norm = rbind(cbind("Diabetes"=rep(0,251),"GenHlth"=BOOT.norm[["GenHlth"]][[1]]$mean),
+                    cbind("Diabetes"=rep(1,251),"GenHlth"=BOOT.norm[["GenHlth"]][[2]]$mean),
+                    cbind("Diabetes"=rep(2,251),"GenHlth"=BOOT.norm[["GenHlth"]][[3]]$mean))
+GenHlth.norm = as.data.frame(GenHlth.norm)
+GenHlth.norm$Diabetes = as.factor(GenHlth.norm$Diabetes)
+
+GenHlth_norm_plot = ggplot() +
+  geom_histogram(aes(x=GenHlth.norm$GenHlth, y=..count../sum(..count..)*100,
+                     fill=GenHlth.norm$Diabetes), position="identity", bins=35) +
+  geom_segment(aes(x=norm_GenHlth_table$lower, xend=norm_GenHlth_table$upper,
+                   y=seq(1, 6, length.out=3), yend=seq(1, 6, length.out=3)),
+               color=c("red", "green","blue"), fill="black", size=1) +
+  labs(title="Normal CI on GenHlth", x="GenHlth", y="Frequency", fill="Diabetes")
+
+#########################
+GenHlth.stud = rbind(cbind("Diabetes"=rep(0,251),"GenHlth"=BOOT.stud[["GenHlth"]][[1]]$mean),
+                    cbind("Diabetes"=rep(1,251),"GenHlth"=BOOT.stud[["GenHlth"]][[2]]$mean),
+                    cbind("Diabetes"=rep(2,251),"GenHlth"=BOOT.stud[["GenHlth"]][[3]]$mean))
+GenHlth.stud = as.data.frame(GenHlth.stud)
+GenHlth.stud$Diabetes = as.factor(GenHlth.stud$Diabetes)
+
+GenHlth_stud_plot = ggplot() +
+  geom_histogram(aes(x=GenHlth.stud$GenHlth, y=..count../sum(..count..)*100,
+                     fill=GenHlth.stud$Diabetes), position="identity", bins=35) +
+  geom_segment(aes(x=stud_GenHlth_table$lower, xend=stud_GenHlth_table$upper,
+                   y=seq(1, 6, length.out=3), yend=seq(1, 6, length.out=3)),
+               color=c("red", "green","blue"), fill="black", size=1) +
+  labs(title="Student t CI on GenHlth", x="GenHlth", y="Frequency", fill="Diabetes")
+
+GenHlth_norm_plot + GenHlth_stud_plot + plot_layout(ncol = 2, guides = "collect")
+```
+
+## HighBP
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+### Tables for m=250, n=250 ###
+# Normal CI table
+norm_HighBP_table = rbind("No Diabetes"=tail(BOOT.norm$HighBP[[1]],1)[,-2],
+                          "Pre-Diabetes"=tail(BOOT.norm$HighBP[[2]],1)[,-2],
+                          "Diabetes"=tail(BOOT.norm$HighBP[[3]],1)[,-2])
+
+norm_HighBP_kable = kable(norm_HighBP_table, caption="Normal CI on HighBP",
+                          digits=3, format = "html") %>%
+      kable_styling("striped", full_width=F, position="float_left", font_size=10) %>%
+      row_spec(0, bold = TRUE, font_size=14, align="c") %>% row_spec(0:3, align="c") %>%
+      column_spec(1, bold = TRUE, border_right = TRUE, width = "7em")
+
+# Student t table
+stud_HighBP_table = rbind("No Diabetes"=tail(BOOT.stud$HighBP[[1]],1)[,-c(2,3)],
+                          "Pre-Diabetes"=tail(BOOT.stud$HighBP[[2]],1)[,-c(2,3)],
+                          "Diabetes"=tail(BOOT.stud$HighBP[[3]],1)[,-c(2,3)])
+
+stud_HighBP_kable = kable(stud_HighBP_table, caption="Student-t CI on HighBP",
+                          digits=3, format = "html") %>%
+      kable_styling("striped", full_width=F, position="float_left", font_size=10) %>%
+      row_spec(0, bold = TRUE, font_size=14, align="c") %>% row_spec(0:3, align="c") %>%
+      column_spec(1, bold = TRUE, border_right = TRUE, width = "7em")
+
+norm_HighBP_kable
+stud_HighBP_kable
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+HighBP.norm = rbind(cbind("Diabetes"=rep(0,251),"HighBP"=BOOT.norm[["HighBP"]][[1]]$mean),
+                    cbind("Diabetes"=rep(1,251),"HighBP"=BOOT.norm[["HighBP"]][[2]]$mean),
+                    cbind("Diabetes"=rep(2,251),"HighBP"=BOOT.norm[["HighBP"]][[3]]$mean))
+HighBP.norm = as.data.frame(HighBP.norm)
+HighBP.norm$Diabetes = as.factor(HighBP.norm$Diabetes)
+
+HighBP_norm_plot = ggplot() +
+  geom_histogram(aes(x=HighBP.norm$HighBP, y=..count../sum(..count..)*100,
+                     fill=HighBP.norm$Diabetes), position="identity", bins=35) +
+  geom_segment(aes(x=norm_HighBP_table$lower, xend=norm_HighBP_table$upper,
+                   y=seq(1, 8, length.out=3), yend=seq(1, 8, length.out=3)),
+               color=c("red", "green","blue"), fill="black", size=1) +
+  labs(title="Normal CI on HighBP", fill="Diabetes",
+       x="HighBP", y="Frequency")
+
+#########################
+HighBP.stud = rbind(cbind("Diabetes"=rep(0,251),"HighBP"=BOOT.stud[["HighBP"]][[1]]$mean),
+                    cbind("Diabetes"=rep(1,251),"HighBP"=BOOT.stud[["HighBP"]][[2]]$mean),
+                    cbind("Diabetes"=rep(2,251),"HighBP"=BOOT.stud[["HighBP"]][[3]]$mean))
+HighBP.stud = as.data.frame(HighBP.stud)
+HighBP.stud$Diabetes = as.factor(HighBP.stud$Diabetes)
+
+HighBP_stud_plot = ggplot() +
+  geom_histogram(aes(x=HighBP.stud$HighBP, y=..count../sum(..count..)*100,
+                     fill=HighBP.stud$Diabetes), position="identity", bins=35) +
+  geom_segment(aes(x=stud_HighBP_table$lower, xend=stud_HighBP_table$upper,
+                   y=seq(1, 8, length.out=3), yend=seq(1, 8, length.out=3)),
+               color=c("red", "green","blue"), fill="black", size=1) +
+  labs(title="Student-t CI on HighBP", fill="Diabetes",
+       x="HighBP", y="Frequency")
+
+HighBP_norm_plot + HighBP_stud_plot + plot_layout(ncol = 2, guides = "collect")
+```
+
+## AnyHealthcare
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+### Tables for m=250, n=250 ###
+# Normal CI table
+norm_AnyHealthcare_table = rbind("No Diabetes"=tail(BOOT.norm$AnyHealthcare[[1]],1)[,-2],
+                          "Pre-Diabetes"=tail(BOOT.norm$AnyHealthcare[[2]],1)[,-2],
+                          "Diabetes"=tail(BOOT.norm$AnyHealthcare[[3]],1)[,-2])
+
+norm_AnyHealthcare_kable = kable(norm_AnyHealthcare_table,
+                                 caption="Normal CI on AnyHealthcare",
+                                 digits=3, format = "html") %>%
+      kable_styling("striped", full_width=F, position="float_left", font_size=10) %>%
+      row_spec(0, bold = TRUE, font_size=14, align="c") %>% row_spec(0:3, align="c") %>%
+      column_spec(1, bold = TRUE, border_right = TRUE, width = "7em")
+
+# Student t table
+stud_AnyHealthcare_table = rbind("No Diabetes"=tail(BOOT.stud$AnyHealthcare[[1]],1)[,-c(2,3)],
+                          "Pre-Diabetes"=tail(BOOT.stud$AnyHealthcare[[2]],1)[,-c(2,3)],
+                          "Diabetes"=tail(BOOT.stud$AnyHealthcare[[3]],1)[,-c(2,3)])
+
+stud_AnyHealthcare_kable = kable(stud_AnyHealthcare_table,
+                                 caption="Student-t CI on AnyHealthcare",
+                                 digits=3, format = "html") %>%
+      kable_styling("striped", full_width=F, position="float_left", font_size=10) %>%
+      row_spec(0, bold = TRUE, font_size=14, align="c") %>% row_spec(0:3, align="c") %>%
+      column_spec(1, bold = TRUE, border_right = TRUE, width = "7em")
+
+norm_AnyHealthcare_kable
+stud_AnyHealthcare_kable
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+AnyHealthcare.norm = rbind(cbind("Diabetes"=rep(0,251),
+                                 "AnyHealthcare"=BOOT.norm[["AnyHealthcare"]][[1]]$mean),
+                    cbind("Diabetes"=rep(1,251),
+                          "AnyHealthcare"=BOOT.norm[["AnyHealthcare"]][[2]]$mean),
+                    cbind("Diabetes"=rep(2,251),
+                          "AnyHealthcare"=BOOT.norm[["AnyHealthcare"]][[3]]$mean))
+AnyHealthcare.norm = as.data.frame(AnyHealthcare.norm)
+AnyHealthcare.norm$Diabetes = as.factor(AnyHealthcare.norm$Diabetes)
+
+AnyHealthcare_norm_plot = ggplot() +
+  geom_histogram(aes(x=AnyHealthcare.norm$AnyHealthcare, y=..count../sum(..count..)*100,
+                     fill=AnyHealthcare.norm$Diabetes), position="identity", bins=35) +
+  geom_segment(aes(x=norm_AnyHealthcare_table$lower, xend=norm_AnyHealthcare_table$upper,
+                   y=seq(1, 15, length.out=3), yend=seq(1, 15, length.out=3)),
+               color=c("red", "green","blue"), fill="black", size=1) +
+  labs(title="Normal CI on AnyHealthcare", fill="Diabetes",
+       x="AnyHealthcare", y="Frequency")
+
+#########################
+AnyHealthcare.stud = rbind(cbind("Diabetes"=rep(0,251),
+                                 "AnyHealthcare"=BOOT.stud[["AnyHealthcare"]][[1]]$mean),
+                           cbind("Diabetes"=rep(1,251),
+                                 "AnyHealthcare"=BOOT.stud[["AnyHealthcare"]][[2]]$mean),
+                           cbind("Diabetes"=rep(2,251),
+                                 "AnyHealthcare"=BOOT.stud[["AnyHealthcare"]][[3]]$mean))
+AnyHealthcare.stud = as.data.frame(AnyHealthcare.stud)
+AnyHealthcare.stud$Diabetes = as.factor(AnyHealthcare.stud$Diabetes)
+
+AnyHealthcare_stud_plot = ggplot() +
+  geom_histogram(aes(x=AnyHealthcare.stud$AnyHealthcare, y=..count../sum(..count..)*100,
+                     fill=AnyHealthcare.stud$Diabetes),
+                 position="identity", bins=35) +
+  geom_segment(aes(x=stud_AnyHealthcare_table$lower, xend=stud_AnyHealthcare_table$upper,
+                   y=seq(1, 15, length.out=3), yend=seq(1, 15, length.out=3)),
+               color=c("red", "green","blue"), fill="black", size=1) +
+  labs(title="Student-t CI on AnyHealthcare", fill="Diabetes",
+       x="AnyHealthcare", y="Frequency")
+
+AnyHealthcare_norm_plot + AnyHealthcare_stud_plot + plot_layout(ncol = 2, guides = "collect")
+```
