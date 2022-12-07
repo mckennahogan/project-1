@@ -124,8 +124,8 @@ student_t_boot = function(data_list, factors) {
       
       theta.t_stat = (theta.hat-data.theta_hat)/theta.se
       
-      theta.lower = theta.hat-(quantile(data.stats$t_stat, probs=c(0.05/2))*theta.se)
-      theta.upper = theta.hat+(quantile(data.stats$t_stat, probs=c(1-0.05/2))*theta.se)
+      theta.lower = theta.hat-abs(quantile(data.stats$t_stat, probs=c(0.05/2))*theta.se)
+      theta.upper = theta.hat+abs(quantile(data.stats$t_stat, probs=c(1-0.05/2))*theta.se)
       
       data.stats[length(data_list)+1,] = c(theta.hat, theta.se, theta.t_stat,
                                            theta.lower, theta.upper)
