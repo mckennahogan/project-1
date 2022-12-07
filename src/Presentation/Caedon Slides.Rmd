@@ -1,18 +1,32 @@
 ---
-
 title: "Caedon Slides"
 author: "Caedon Ott"
 date: '2022-12-1'
-output: ioslides_presentation
+output:
+  ioslides_presentation:
+    widescreen: true
+    smaller: true
+---
 
----
----
-```{r functions}
+```{r,echo=FALSE, message=FALSE, warning=FALSE, include=FALSE,}
+library(tidyverse)
+library(knitr)
+library(dplyr)
+library(simpleboot)
+library(boot) 
+library(kableExtra)
+library(gridExtra)
+library("cowplot")
+set.seed(26)
+```
+
+
+```{r functions, message=FALSE, warning=FALSE, include=FALSE}
 f1 <- function(data, m,n){
 
   bootstrap_data <- list()
   for(i in 1:m){
-    temp_sample_ind <- sample.int(length(data), n)
+    temp_sample_ind <- sample(1:length(data), n,replace=TRUE)
     bootstrap_data[[i]] <- data[temp_sample_ind]
   }
   return(bootstrap_data)
@@ -71,11 +85,12 @@ bca_CI <- function(theta_boot,theta_hat,m){
   
 }
 
-bca_compile <- function(data0,data1,theta_hat1,theta_hat2,m,n){
-  data.stats = setNames(data.frame(matrix(ncol = 10, nrow = length(m)*length(n))),
-                 c("mean1", "sd1","ci_1_lower","ci_1_upper","mean2", "sd2","ci_2_lower","ci_2_upper","mean_diff_lower", "mean_diff_upper"))
+bca_compile <- function(data0,data1,data2,theta_hat1,theta_hat2,theta_hat3,m,n){
+  data.stats = setNames(data.frame(matrix(ncol = 12, nrow = length(m)*length(n))),
+                 c("mean1", "sd1","ci_1_lower","ci_1_upper","mean2", "sd2","ci_2_lower","ci_2_upper","mean3", "sd3","ci_3_lower","ci_3_upper"))
   row.names(data.stats) <- c("m5,n10","m5,n25","m5,n75","m5,n125","m5,n250","m10,n10","m10,n25","m10,n75","m10,n125","m10,n250","m15,n10","m15,n25","m15,n75","m15,n125","m15,n250","m30,n10","m30,n25","m30,n75","m30,n125","m30,n250","m50,n10","m50,n25","m50,n75","m50,n125","m50,n250")
   counter=1
+  bca_CI_means <- data.frame(matrix(ncol=3,nrow=m[5]))
   for(r in 1:length(m)){
     for(c in 1:length(n)){
       b0 <- f1(data0,m[r],n[c])
@@ -85,60 +100,47 @@ bca_compile <- function(data0,data1,theta_hat1,theta_hat2,m,n){
       b1 <- f1(data1,m[r],n[c])
       b1_mean <- b_means(b1,m[r])
       b1_se <- b_sds(b1,m[r])
+      
+      b2<- f1(data2,m[r],n[c])
+      b2_mean <- b_means(b2,m[r])
+      b2_se <- b_sds(b2,m[r])
   
-      b_mean_diff <- rep(NA,m[r])
-      b_se_diff <- rep(NA,m[r])
-      for(i in 1:m[r]){
-        b_mean_diff[i] <- b0_mean[i]-b1_mean[i]
-        b_se_diff[i] <- b0_se[i]-b1_se[i]
-      }
-      b_theta_hat_diff <- theta_hat1-theta_hat2
-  
-  
-  
-      b_ci_diff <- bca_CI(b_mean_diff,b_theta_hat_diff,m[r])
+      # b_mean_diff <- rep(NA,m[r])
+      # b_se_diff <- rep(NA,m[r])
+      # for(i in 1:m[r]){
+      #   b_mean_diff[i] <- b0_mean[i]-b1_mean[i]
+      #   b_se_diff[i] <- b0_se[i]-b1_se[i]
+      # }
+      # b_theta_hat_diff <- theta_hat1-theta_hat2
+      # 
+      # 
+      # 
+      # b_ci_diff <- bca_CI(b_mean_diff,b_theta_hat_diff,m[r])
       b0_ci <- bca_CI(b0_mean,theta_hat1,m[r])
       b1_ci <- bca_CI(b1_mean,theta_hat2,m[r])
+      b2_ci <- bca_CI(b2_mean,theta_hat3,m[r])
       
-      data.stats[counter,] <- c(mean(b0_mean),mean(b0_se),b0_ci[1],b0_ci[2],mean(b1_mean),mean(b1_se),b1_ci[1],b1_ci[2],b_ci_diff[1],b_ci_diff[2])
+      data.stats[counter,] <- c(mean(b0_mean),mean(b0_se),b0_ci[1],b0_ci[2],mean(b1_mean),mean(b1_se),b1_ci[1],b1_ci[2],mean(b2_mean),mean(b2_se),b2_ci[1],b2_ci[2])
       counter <- counter + 1
+      if(m[r] == 50 & n[c] == 250){
+        bca_CI_means[,1] <- b0_mean
+        bca_CI_means[,2] <- b1_mean
+        bca_CI_means[,3] <- b2_mean
+        
+      }
     }
   }
   
   
-  return(data.stats)
+  return(list(data.stats,bca_CI_means))
   
 }
 ```
 
 
 
----
-Bias Corrected and Accelerated Confidence Intervals
-- Early struggles + acceleration constant
-- Show equation, talk about a heading to zero
-- Distribution of bca difference of mean CI's 
-- Hypothesis test
 
-
----
-$g(u) = \hat{F}^{-1}(\phi(z_0 + \frac{z_0 + z_u}{1-a(z_0+z_u)}))$
-
-  Lower bound = $g(\alpha/2)$, Upper bound = $g(1-\alpha/2)$
-  $\phi$ is the standard normal cdf 
-  $\hat{F}$ is the bootstrap cdf
-  $z_0 = \phi^{-1}F(\hat{\theta})$, quantile of mean of theta_boot <= theta_hat
-  $z_u = \phi^{-1}(u)$, quantiles of our desired bounds 
-  
-$\hat{a} = \frac{1}{6}\frac{\sum_{i=1}^n I_i^3}{(\sum_{i=1}^n I_i^2)^{3/2}}$
-  
-$I_i = (n-1)(\hat{\theta}-\hat{\theta}_{-i})$ finite sample jacknife approx.
-___
-
----
-
-```{r,echo=FALSE}
-library(ggplot2)
+```{r,echo=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 diab.data1<- read_csv("~/STAT400/Project 1/data/diabetes_012_health_indicators_BRFSS2015.csv")
 nodib <- diab.data1 |> 
   filter(Diabetes_012==0)|>
@@ -155,41 +157,298 @@ dib <- diab.data1 |>
 m_vec <- c(5,10,15,30,50)
 n_vec <- c(10,25,75,125,250)
 
-highBP <- c(nodib$HighBP,predib$HighBP,dib$HighBP)
-highBPlabel <- c(rep("no_diab",length(nodib$HighBP)),rep("pre_diab",length(predib$HighBP)),rep("diab",length(dib$HighBP)))
-hBP <- data.frame(highBP, group = highBPlabel)
-x02 <- bca_compile(nodib$HighBP,dib$HighBP,mean(nodib$HighBP),mean(dib$HighBP),m_vec,n_vec)
+# highBP <- c(nodib$HighBP,predib$HighBP,dib$HighBP)
+# highBPlabel <- c(rep("no_diab",length(nodib$HighBP)),rep("pre_diab",length(predib$HighBP)),rep("diab",length(dib$HighBP)))
+# hBP_frame <- data.frame(highBP, group = highBPlabel)
+# 
+# highChol <- c(nodib$HighChol,predib$HighChol,dib$HighChol)
+# highChollabel <- c(rep("no_diab",length(nodib$HighChol)),rep("pre_diab",length(predib$HighChol)),rep("diab",length(dib$HighChol)))
+# hChol_frame <- data.frame(highChol, group = highChollabel)
+# 
+# BMI <- c(nodib$BMI,predib$BMI,dib$BMI)
+# BMIlabel <- c(rep("no_diab",length(nodib$BMI)),rep("pre_diab",length(predib$BMI)),rep("diab",length(dib$BMI)))
+# BMI_frame <- data.frame(highBP, group = highBPlabel)
+# 
+# AnyHealthcare <- c(nodib$AnyHealthcare,predib$AnyHealthcare,dib$AnyHealthcare)
+# AnyHealthcarelabel <- c(rep("no_diab",length(nodib$AnyHealthcare)),rep("pre_diab",length(predib$AnyHealthcare)),rep("diab",length(dib$AnyHealthcare)))
+# AnyHealthcare_frame <- data.frame(AnyHealthcare, group = AnyHealthcarelabel)
+# 
+# GenHlth <- c(nodib$GenHlth,predib$GenHlth,dib$GenHlth)
+# GenHlthlabel <- c(rep("no_diab",length(nodib$GenHlth)),rep("pre_diab",length(predib$GenHlth)),rep("diab",length(dib$GenHlth)))
+# GenHlth_frame <- data.frame(GenHlth, group = GenHlthlabel)
+# 
+# Income <- c(nodib$Income,predib$Income,dib$Income)
+# Incomelabel <- c(rep("no_diab",length(nodib$Income)),rep("pre_diab",length(predib$Income)),rep("diab",length(dib$Income)))
+# Income_frame <- data.frame(Income, group = Incomelabel)
+nodibindic <- rep("No Diabetes",50)
+predibindic <- rep("Pre Diabetes",50)
+dibindic <- rep("Diabetes",50)
+indic <- c(nodibindic,predibindic,dibindic)
+
+
+
+a <- bca_compile(nodib$HighBP,predib$HighBP,dib$HighBP,mean(nodib$HighBP),mean(predib$HighBP),mean(dib$HighBP),m_vec,n_vec)
+a1 <- a[[1]]
+a2 <- a[[2]]
+highBP <- c(a2[,1],a2[,2],a2[,3])
+#a3 <- cbind(a3,indic)
+a3 <- data.frame(highBP,group=indic)
+
+b <- bca_compile(nodib$HighChol,predib$HighChol,dib$HighChol,mean(nodib$HighChol),mean(predib$HighChol),mean(dib$HighChol),m_vec,n_vec)
+b1 <- b[[1]]
+b2 <- b[[2]]
+highChol <- c(b2[,1],b2[,2],b2[,3])
+b3 <- data.frame(highChol,group = indic)
+
+c <- bca_compile(nodib$BMI,predib$BMI,dib$BMI,mean(nodib$BMI),mean(predib$BMI),mean(dib$BMI),m_vec,n_vec)
+c1 <- c[[1]]
+c2 <- c[[2]]
+BMI <- c(c2[,1],c2[,2],c2[,3])
+c3 <- data.frame(BMI,group=indic)
+
+d <- bca_compile(nodib$AnyHealthcare,predib$AnyHealthcare,dib$AnyHealthcare,mean(nodib$AnyHealthcare),mean(predib$AnyHealthcare),mean(dib$AnyHealthcare),m_vec,n_vec)
+d1 <- d[[1]]
+d2 <- d[[2]]
+AnyHealthcare <- c(d2[,1],d2[,2],d2[,3])
+d3 <- data.frame(AnyHealthcare,group=indic)
+
+e <- bca_compile(nodib$GenHlth,predib$GenHlth,dib$GenHlth,mean(nodib$GenHlth),mean(predib$GenHlth),mean(dib$GenHlth),m_vec,n_vec)
+e1 <- e[[1]]
+e2 <- e[[2]]
+GenHlth <- c(e2[,1],e2[,2],e2[,3])
+e3 <- data.frame(GenHlth,group=indic)
+
+f <- bca_compile(nodib$Income,predib$Income,dib$Income,mean(nodib$Income),mean(predib$Income),mean(dib$Income),m_vec,n_vec)
+f1 <- f[[1]]
+f2 <- f[[2]]
+Income <- c(f2[,1],f2[,2],f2[,3])
+f3 <- data.frame(Income,group=indic)
+
+#for m=50, n=250
+#x02[3,25] is the lower bound of first CI
+#x02[4,25] is the upper bound of first CI
+#x02[7,25] is the lower bound of first CI
+#x02[8,25] is the upper bound of first CI
+
+
+make_table <- function(data){
+  t = setNames(data.frame(matrix(ncol = 4, nrow = 3)), c("Mean", "SD","CI_Low","CI_High"))
+  row.names(t) <- c("No Diabetes","Pre Diabetes","Diabetes")
+  t[1,1] = data[25,1]
+  t[2,1] = data[25,5]
+  t[3,1] = data[25,9]
+  
+  t[1,2] = data[25,2]
+  t[2,2] = data[25,6]
+  t[3,2] = data[25,10]
+  
+  t[1,3] = data[25,3]
+  t[2,3] = data[25,7]
+  t[3,3] = data[25,11]
+  
+  t[1,4] = data[25,4]
+  t[2,4] = data[25,8]
+  t[3,4] = data[25,12]
+  
+  return(t)
+}
+make_table2 <- function(data){
+  t = setNames(data.frame(matrix(ncol = 4, nrow = 3)), c("Mean", "SD","CI_Low","CI_High"))
+  row.names(t) <- c("No Diabetes","Pre Diabetes","Diabetes")
+  t[1,1] = data[1,1]
+  t[2,1] = data[1,5]
+  t[3,1] = data[1,9]
+  
+  t[1,2] = data[1,2]
+  t[2,2] = data[1,6]
+  t[3,2] = data[1,10]
+  
+  t[1,3] = data[1,3]
+  t[2,3] = data[1,7]
+  t[3,3] = data[1,11]
+  
+  t[1,4] = data[1,4]
+  t[2,4] = data[1,8]
+  t[3,4] = data[1,12]
+  
+  return(t)
+}
+
+
 
 
 ```
-```{r}
-ggplot(hBP, aes(x = highBP, colour = group))+
-  geom_histogram()
+##                        Caedon's portion
 
+
+
+
+
+
+Bias Corrected and Accelerated Confidence Intervals
+
+Early struggles + acceleration constant
+
+BCa by hand
+
+Histograms + BCa confidence intervals
+
+    
+    
+                            
+
+##                          BCa by hand
+
+
+
+I used the equation:
+
+$g(u) = \hat{F}^{-1}(\phi(z_0 + \frac{z_0 + z_u}{1-a(z_0+z_u)}))$
+
+  Lower bound = $g(\alpha/2)$, Upper bound = $g(1-\alpha/2)$
+  $\phi$ is the standard normal cdf 
+  $\hat{F}$ is the bootstrap cdf
+  $z_0 = \phi^{-1}F(\hat{\theta})$, quantile of mean of theta_boot <= theta_hat
+  $z_u = \phi^{-1}(u)$, quantiles of our desired bounds 
+  
+$\hat{a} = \frac{1}{6}\frac{\sum_{i=1}^n I_i^3}{(\sum_{i=1}^n I_i^2)^{3/2}}$
+  
+$I_i = (n-1)(\hat{\theta}-\hat{\theta}_{-i})$ finite sample jacknife approx.
+
+
+
+##                       BCa High Blood Pressure
+```{r highBP plot, echo=FALSE, fig.height=3.5, fig.width=9, message=FALSE, warning=FALSE}
+
+highBPtable <- make_table(a1)
+highBPtable2 <- make_table2(a1)
+highBPtable.kable <- kable(highBPtable, caption = "High Blood Pressure m=50 n=250", digits = 3, format = "html") %>%
+kable_styling(full_width=TRUE,position="float_left") %>% column_spec(1:5,width="3em")
+highBPtable.kable2 <- kable(highBPtable2, caption = "High Blood Pressure m=5 n=10", digits = 3, format = "html") %>% kable_styling(full_width=TRUE,position="center") %>% column_spec(1:5,width="3em")
+
+highBPplot <- ggplot(data=a3,aes(x = highBP,fill = group))+
+  geom_histogram(bins=40)+
+  geom_segment(aes(x=(a1[25,3]),y=15,xend=(a1[25,4]),yend=15),col="Green")+
+  geom_segment(aes(x=(a1[1,3]),y=13,xend=(a1[1,4]),yend=13,),col="Green")+
+  geom_segment(aes(x=(a1[25,7]),y=11,xend=(a1[25,8]),yend=11),col = "Blue")+
+  geom_segment(aes(x=(a1[1,7]),y=9,xend=(a1[1,8]),yend=9),col = "Blue")+
+  geom_segment(aes(x=(a1[25,11]),y=7,xend=(a1[25,12]),yend=7), col = "Red")+
+  geom_segment(aes(x=(a1[1,11]),y=5,xend=(a1[1,12]),yend=5),col = "Red")+
+  labs(fill="Diabetes")
+
+highBPtable.kable
+highBPtable.kable2
+highBPplot
+  
 ```
 
+##                      BCa High Cholesterol
+```{r High Cholesterol, echo=FALSE, fig.height=3.5, fig.width=9, message=FALSE, warning=FALSE}
+highCholtable <- make_table(b1)
+highCholtable2 <- make_table2(b1)
+highCholtable.kable <- kable(highCholtable, caption = "High Cholesterol m=50 n=250", digits = 3, format = "html")%>% kable_styling(full_width=TRUE,position="float_left") %>% column_spec(1:5,width="3em")
+highCholtable.kable2 <- kable(highCholtable2, caption = "High Cholesterol m=5 n=10", digits = 3, format = "html")%>% kable_styling(full_width=TRUE,position="center") %>% column_spec(1:5,width="3em")
 
+highCholplot <- ggplot(data=b3,aes(x = highChol,fill = group))+
+  geom_histogram(bins=40)+
+  geom_segment(aes(x=(b1[25,3]),y=15,xend=(b1[25,4]),yend=15),col = "Green")+
+  geom_segment(aes(x=(b1[1,3]),y=13,xend=(b1[1,4]),yend=13),col = "Green")+
+  geom_segment(aes(x=(b1[25,7]),y=11,xend=(b1[25,8]),yend=11),col = "Blue")+
+  geom_segment(aes(x=(b1[1,7]),y=9,xend=(b1[1,8]),yend=9),col = "Blue")+
+  geom_segment(aes(x=(b1[25,11]),y=7,xend=(b1[25,12]),yend=7), col = "Red")+
+  geom_segment(aes(x=(b1[1,11]),y=5,xend=(b1[1,12]),yend=5), col = "Red")+
+  labs(fill="Diabetes")
 
+highCholtable.kable
+highCholtable.kable2
+highCholplot
+```
 
+##                              BCa BMI
+```{r BMI, echo=FALSE, fig.height=3.5, fig.width=9, message=FALSE, warning=FALSE}
+BMItable <- make_table(c1)
+BMItable2 <- make_table2(c1)
+BMItable.kable <- kable(BMItable, caption = "BMI m=50 n=250", digits = 3, format = "html")%>% kable_styling(full_width=TRUE,position="float_left") %>% column_spec(1:5,width="3em")
+BMItable.kable2 <- kable(BMItable2, caption = "BMI m=5 n=10", digits = 3, format = "html")%>% kable_styling(full_width=TRUE,position="center") %>% column_spec(1:5,width="3em")
 
+BMIplot <- ggplot(data=c3,aes(x = BMI,fill = group))+
+  geom_histogram(bins=40)+
+  geom_segment(aes(x=(c1[25,3]),y=15,xend=(c1[25,4]),yend=15),col = "Green")+
+  geom_segment(aes(x=(c1[1,3]),y=13,xend=(c1[1,4]),yend=13),col = "Green")+
+  geom_segment(aes(x=(c1[25,7]),y=11,xend=(c1[25,8]),yend=11),col = "Blue")+
+  geom_segment(aes(x=(c1[1,7]),y=9,xend=(c1[1,8]),yend=9),col = "Blue")+
+  geom_segment(aes(x=(c1[25,11]),y=7,xend=(c1[25,12]),yend=7), col = "Red")+
+  geom_segment(aes(x=(c1[1,11]),y=5,xend=(c1[1,12]),yend=5), col = "Red")+
+  labs(fill="Diabetes")
 
+BMItable.kable
+BMItable.kable2
+BMIplot
+```
 
+##                          BCa Any Healthcare
+```{r Any Healthcare, echo=FALSE, fig.height=3.5, fig.width=9, message=FALSE, warning=FALSE}
+AnyHealthcaretable <- make_table(d1)
+AnyHealthcaretable2 <- make_table2(d1)
+AnyHealthcare.kable <- kable(AnyHealthcaretable, caption = "Any Healthcare m=50 n=250", digits = 3, format = "html")%>% kable_styling(full_width=TRUE,position="float_left") %>% column_spec(1:5,width="3em")
+AnyHealthcare.kable2 <- kable(AnyHealthcaretable2, caption = "Any Healthcare m=5 n=10", digits = 3, format = "html")%>% kable_styling(full_width=TRUE,position="center") %>% column_spec(1:5,width="3em")
 
+AnyHealthcareplot <- ggplot(data=d3,aes(x = AnyHealthcare,fill = group))+
+  geom_histogram(bins=40)+
+  geom_segment(aes(x=(d1[25,3]),y=15,xend=(d1[25,4]),yend=15),col = "Green")+
+  geom_segment(aes(x=(d1[1,3]),y=13,xend=(d1[1,4]),yend=13),col = "Green")+
+  geom_segment(aes(x=(d1[25,7]),y=11,xend=(d1[25,8]),yend=11),col = "Blue")+
+  geom_segment(aes(x=(d1[1,7]),y=9,xend=(d1[1,8]),yend=9),col = "Blue")+
+  geom_segment(aes(x=(d1[25,11]),y=7,xend=(d1[25,12]),yend=7), col = "Red")+
+  geom_segment(aes(x=(d1[1,11]),y=5,xend=(d1[1,12]),yend=5), col = "Red")+
+  labs(fill="Diabetes")
 
+AnyHealthcare.kable
+AnyHealthcare.kable2
+AnyHealthcareplot
+```
 
+##                          BCa General Health
+```{r General Health, echo=FALSE, fig.height=3.5, fig.width=9, message=FALSE, warning=FALSE}
+GenHlthtable <- make_table(e1)
+GenHlthtable2 <- make_table2(e1)
+GenHlth.kable <- kable(GenHlthtable, caption = "General Health m=50 n=250", digits = 3, format = "html")%>% kable_styling(full_width=TRUE,position="float_left") %>% column_spec(1:5,width="3em")
+GenHlth.kable2 <- kable(GenHlthtable2, caption = "General Health m=5 n=10", digits = 3, format = "html")%>% kable_styling(full_width=TRUE,position="center") %>% column_spec(1:5,width="3em")
 
+GenHlthplot <- ggplot(data=e3,aes(x = GenHlth,fill = group))+
+  geom_histogram(bins=40)+
+  geom_segment(aes(x=(e1[25,3]),y=15,xend=(e1[25,4]),yend=15),col = "Green")+
+  geom_segment(aes(x=(e1[1,3]),y=13,xend=(e1[1,4]),yend=13),col = "Green")+
+  geom_segment(aes(x=(e1[25,7]),y=11,xend=(e1[25,8]),yend=11),col = "Blue")+
+  geom_segment(aes(x=(e1[1,7]),y=9,xend=(e1[1,8]),yend=9),col = "Blue")+
+  geom_segment(aes(x=(e1[25,11]),y=7,xend=(e1[25,12]),yend=7), col = "Red")+
+  geom_segment(aes(x=(e1[25,11]),y=5,xend=(e1[25,12]),yend=5), col = "Red")+
+  labs(fill="Diabetes")
 
+GenHlth.kable
+GenHlth.kable2
+GenHlthplot
+```
 
-<!-- Due to the fact that we wanted to experiment with different n sizes, we did not -->
-<!-- use the boot package. However, it still serves as a useful tool to see if your  -->
-<!-- numbers are close. -->
+##                             BCa Income
+```{r Income, echo=FALSE, fig.height=3.5, fig.width=9, message=FALSE, warning=FALSE}
+Incometable <- make_table(f1)
+Incometable2 <- make_table2(f1)
+Income.kable <- kable(GenHlthtable, caption = "Income m=50 n=250", digits = 3, format = "html")%>% kable_styling(full_width=TRUE,position="float_left") %>% column_spec(1:5,width="3em")
+Income.kable2 <- kable(GenHlthtable2, caption = "Income m=5 n=10", digits = 3, format = "html")%>% kable_styling(full_width=TRUE,position="center") %>% column_spec(1:5,width="3em")
 
-<!-- Early on, I noticed I was unable to compute the confidence interval. I kept -->
-<!-- getting errors about bound restrictions and infinite sizes, and my compiler would -->
-<!-- run for minutes on end without ever reaching a finish. I went to check my work -->
-<!-- against the boot package bca confidence interval, and ran into the same issue. -->
-<!-- How come the bca confidence interval couldnt be computed for this data set?  -->
+Incomeplot <- ggplot(data=f3,aes(x = Income,fill = group))+
+  geom_histogram(bins=40)+
+  geom_segment(aes(x=(f1[25,3]),y=15,xend=(f1[25,4]),yend=15),col = "Green")+
+  geom_segment(aes(x=(f1[1,3]),y=13,xend=(f1[1,4]),yend=13),col = "Green")+
+  geom_segment(aes(x=(f1[25,7]),y=11,xend=(f1[25,8]),yend=11),col = "Blue")+
+  geom_segment(aes(x=(f1[1,7]),y=9,xend=(f1[1,8]),yend=9),col = "Blue")+
+  geom_segment(aes(x=(f1[25,11]),y=7,xend=(f1[25,12]),yend=7), col = "Red")+
+  geom_segment(aes(x=(f1[1,11]),y=5,xend=(f1[1,12]),yend=5), col = "Red")+
+  labs(fill="Diabetes")
 
-<!-- After many many looks over the equation, I realized that my sample size was actually -->
-<!-- too large for the computation. When estimating the acceleration constant, it compares -->
-<!-- the variance of the entire da -->
+Income.kable
+Income.kable2
+Incomeplot
+```
+
