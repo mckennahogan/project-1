@@ -62,7 +62,6 @@ ggplot(data=diab.data1)+
 
 
 
-# McKenna
 ```{r KenData2, message=FALSE, warning=FALSE, include=FALSE}
 #skewed data
 diab.data1<- read_csv("../../data/diabetes_012_health_indicators_BRFSS2015.csv")
@@ -448,7 +447,6 @@ HighBP.list[6]
 HighBP.list[5]
 ```
 
-# Jorie
 
 
 ```{r JorDataInit, message=FALSE, warning=FALSE, include=FALSE}
@@ -1029,8 +1027,8 @@ AnyHealthcare_norm_plot + AnyHealthcare_stud_plot + plot_layout(ncol = 2, guides
 ```
 
 
-# Caedon
 ```{r functions, message=FALSE, warning=FALSE, include=FALSE}
+set.seed(26)
 f1 <- function(data, m,n){
 
   bootstrap_data <- list()
@@ -1287,7 +1285,7 @@ make_table2 <- function(data){
 
 
 ```
-##                        Caedon's portion
+##                        Caedon BCa bootstrap
 
 
 
