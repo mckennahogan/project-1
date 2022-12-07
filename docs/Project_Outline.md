@@ -28,7 +28,7 @@ For this data set, our group will focus on six different factors for our analysi
  - High Cholesterol
     - Binary
  
-For each bootstrap method, we will look at bootstrapping with $m=[5,10,15,30,50]$ samples and $n=[10,25,75,125,250]$.
+For each bootstrap method, we will look at bootstrapping with $m=[10,30,50,100,250]$ samples and $n=[10,25,75,125,250]$.
 Each analysis will explore a specific set of $m$ and $n$ values.
 
 1. Percentile Bootstrap -> McKenna
