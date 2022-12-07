@@ -165,6 +165,7 @@ x02 <- bca_compile(nodib$HighBP,dib$HighBP,mean(nodib$HighBP),mean(dib$HighBP),m
 ```{r}
 ggplot(hBP, aes(x = highBP, colour = group))+
   geom_histogram()
+
 ```
 
 
