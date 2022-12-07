@@ -1,7 +1,12 @@
 ---
 title: "kenna presentation"
 author: "McKenna Hogan"
-output: ioslides_presentation
+output: 
+  ioslides_presentation:
+    widescreen: true
+    smaller: true
+  
+
 ---
 
 ```{r setup, include=FALSE}
@@ -113,21 +118,114 @@ diff.means<-function(data0,data1,data2,R){
                      xend=boot.diab_no$basic[5],col="basic"),size=1.5)+
     xlab("mean(diabetes) - mean(no diabetes)")
 
-  print(boot.no_pre$basic)
+  mean.no_pre<-mean(no_pre$t)
+  mean.pre_diab<-mean(pre_diab$t)
+  mean.diab_no<-mean(diab_no$t)
   return(list(plot.no_pre, boot.no_pre,
               plot.pre_diab, boot.pre_diab,
-              plot.diab_no, boot.diab_no))
+              plot.diab_no, boot.diab_no,
+              mean.no_pre,mean.pre_diab,mean.diab_no))
 }
 
 ```
 
-```{r calling each variable, message=FALSE, warning=FALSE, include=FALSE}
+```{r calling each variable, message=FALSE, warning=FALSE, include=FALSE, cache=T}
 HighBP.list<-diff.means(HighBP0,HighBP1,HighBP2,1000)
-# HighChol.list<-diff.means(HighChol0,HighChol1,HighChol2,1000)
-# BMI.list<-diff.means(BMI0,BMI1,BMI2,1000)
-# AnyHealthcare.list<-diff.means(AnyHealthcare0,AnyHealthcare1,AnyHealthcare2,1000)
-# GenHlth.list<-diff.means(GenHlth0,GenHlth1,GenHlth2,1000)
+
+HighChol.list<-diff.means(HighChol0,HighChol1,HighChol2,1000)
+
+BMI.list<-diff.means(BMI0,BMI1,BMI2,1000)
+
+AnyHealthcare.list<-diff.means(AnyHealthcare0,AnyHealthcare1,AnyHealthcare2,1000)
+
+GenHlth.list<-diff.means(GenHlth0,GenHlth1,GenHlth2,1000)
+
 Income.list<-diff.means(Income0,Income1,Income2,1000)
+
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+no_pre.row1<-c(HighBP.list[[7]],HighBP.list[[2]][["percent"]][[4]],
+              HighBP.list[[2]][["percent"]][[5]],
+        HighBP.list[[2]][["basic"]][[4]],HighBP.list[[2]][["basic"]][[5]])
+no_pre.row2<-c(HighChol.list[[7]],HighChol.list[[2]][["percent"]][[4]],
+        HighChol.list[[2]][["percent"]][[5]],
+        HighChol.list[[2]][["basic"]][[4]],HighChol.list[[2]][["basic"]][[5]])
+no_pre.row3<-c(BMI.list[[7]],BMI.list[[2]][["percent"]][[4]],BMI.list[[2]][["percent"]][[5]],
+        BMI.list[[2]][["basic"]][[4]],BMI.list[[2]][["basic"]][[5]])
+no_pre.row4<-c(AnyHealthcare.list[[7]],AnyHealthcare.list[[2]][["percent"]][[4]],
+        AnyHealthcare.list[[2]][["percent"]][[5]],
+        AnyHealthcare.list[[2]][["basic"]][[4]],AnyHealthcare.list[[2]][["basic"]][[5]])
+no_pre.row5<-c(GenHlth.list[[7]],GenHlth.list[[2]][["percent"]][[4]],
+        GenHlth.list[[2]][["percent"]][[5]],
+        GenHlth.list[[2]][["basic"]][[4]],GenHlth.list[[2]][["basic"]][[5]])
+no_pre.row6<-c(Income.list[[7]],Income.list[[2]][["percent"]][[4]],
+               Income.list[[2]][["percent"]][[5]],
+        Income.list[[2]][["basic"]][[4]],Income.list[[2]][["basic"]][[5]])
+
+no_pre.table<-rbind(no_pre.row1,no_pre.row2,no_pre.row3,no_pre.row4,no_pre.row5,no_pre.row6)
+rownames(no_pre.table)<-c("HighBP","HighChol","BMI","AnyHealthcare","GenHlth","Income")
+colnames(no_pre.table)<-c("mean","low percentile","high percentile","low basic","high basic")
+no_pre.kable<-kable(no_pre.table,caption="no-pre",
+                    digits=3,format="html",align="c")|>
+  kable_paper("hover", full_width = F)
+
+##
+
+pre_diab.row1<-c(HighBP.list[[8]],HighBP.list[[2]][["percent"]][[4]],
+              HighBP.list[[4]][["percent"]][[5]],
+        HighBP.list[[2]][["basic"]][[4]],HighBP.list[[2]][["basic"]][[5]])
+pre_diab.row2<-c(HighChol.list[[8]],HighChol.list[[4]][["percent"]][[4]],
+        HighChol.list[[4]][["percent"]][[5]],
+        HighChol.list[[4]][["basic"]][[4]],HighChol.list[[4]][["basic"]][[5]])
+pre_diab.row3<-c(BMI.list[[8]],BMI.list[[4]][["percent"]][[4]],BMI.list[[4]][["percent"]][[5]],
+        BMI.list[[4]][["basic"]][[4]],BMI.list[[4]][["basic"]][[5]])
+pre_diab.row4<-c(AnyHealthcare.list[[8]],AnyHealthcare.list[[4]][["percent"]][[4]],
+        AnyHealthcare.list[[4]][["percent"]][[5]],
+        AnyHealthcare.list[[4]][["basic"]][[4]],AnyHealthcare.list[[2]][["basic"]][[5]])
+pre_diab.row5<-c(GenHlth.list[[8]],GenHlth.list[[2]][["percent"]][[4]],
+        GenHlth.list[[4]][["percent"]][[5]],
+        GenHlth.list[[4]][["basic"]][[4]],GenHlth.list[[4]][["basic"]][[5]])
+pre_diab.row6<-c(Income.list[[8]],Income.list[[4]][["percent"]][[4]],
+               Income.list[[4]][["percent"]][[5]],
+        Income.list[[4]][["basic"]][[4]],Income.list[[4]][["basic"]][[5]])
+
+pre_diab.table<-rbind(pre_diab.row1,pre_diab.row2,pre_diab.row3,
+                      pre_diab.row4,pre_diab.row5,pre_diab.row6)
+rownames(pre_diab.table)<-c("HighBP","HighChol","BMI","AnyHealthcare","GenHlth","Income")
+colnames(pre_diab.table)<-c("mean","low percentile","high percentile","low basic","high basic")
+pre_diab.kable<-kable(pre_diab.table,caption="pre-diab",
+                    digits=3,format="html",align="c")|>
+  kable_paper("hover", full_width = F)
+
+##
+
+diab_no.row1<-c(HighBP.list[[9]],HighBP.list[[6]][["percent"]][[4]],
+              HighBP.list[[2]][["percent"]][[5]],
+        HighBP.list[[6]][["basic"]][[4]],HighBP.list[[6]][["basic"]][[5]])
+diab_no.row2<-c(HighChol.list[[9]],HighChol.list[[2]][["percent"]][[4]],
+        HighChol.list[[6]][["percent"]][[5]],
+        HighChol.list[[6]][["basic"]][[4]],HighChol.list[[2]][["basic"]][[5]])
+diab_no.row3<-c(BMI.list[[9]],BMI.list[[6]][["percent"]][[4]],BMI.list[[6]][["percent"]][[5]],
+        BMI.list[[6]][["basic"]][[4]],BMI.list[[6]][["basic"]][[5]])
+diab_no.row4<-c(AnyHealthcare.list[[9]],AnyHealthcare.list[[6]][["percent"]][[4]],
+        AnyHealthcare.list[[6]][["percent"]][[5]],
+        AnyHealthcare.list[[6]][["basic"]][[4]],AnyHealthcare.list[[6]][["basic"]][[5]])
+diab_no.row5<-c(GenHlth.list[[9]],GenHlth.list[[6]][["percent"]][[4]],
+        GenHlth.list[[6]][["percent"]][[5]],
+        GenHlth.list[[6]][["basic"]][[4]],GenHlth.list[[6]][["basic"]][[5]])
+diab_no.row6<-c(Income.list[[9]],Income.list[[6]][["percent"]][[4]],
+               Income.list[[2]][["percent"]][[5]],
+        Income.list[[6]][["basic"]][[4]],Income.list[[6]][["basic"]][[5]])
+
+diab_no.table<-rbind(diab_no.row1,diab_no.row2,diab_no.row3,diab_no.row4,
+                     diab_no.row5,diab_no.row6)
+rownames(diab_no.table)<-c("HighBP","HighChol","BMI","AnyHealthcare","GenHlth","Income")
+colnames(diab_no.table)<-c("mean","low percentile","high percentile","low basic","high basic")
+diab_no.kable<-kable(diab_no.table,caption="diab-no",
+                    digits=3,format="html",align="c")|>
+  kable_paper("hover", full_width = F)
 
 ```
 
@@ -144,64 +242,175 @@ variables analyzed among the combinations of no diabetes, prediabetes, and diabe
 which matched my findings for small bias
 
 
-## HighBP No Diabetes and Prediabetes
+## Tables for means and CI's no - pre
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-HighBP.list[1]
+# my.table<-data.frame(rbind(HighBP.means,HighChol.means,BMI.means,AnyHealthcare.means,
+#                      GenHlth.means,Income.means))
+# rownames(my.table)<-c("HighBP","HighChol","BMI","AnyHealthcare","GenHlth","Income")
+# colnames(my.table)<-c("no - pre","pre - diab","diab - no")
+# my.kable<-kable(my.table)|>
+#   kable_paper("hover", full_width = F)
+# my.kable
 ```
 
-## HighBP No Diabetes and Prediabetes
+```{r echo=FALSE, fig.height=4, fig.width=3, message=FALSE, warning=FALSE}
+no_pre.kable
+```
+## Tables for means and CI's pre - diab
+```{r echo=FALSE, fig.height=4, fig.width=3, message=FALSE, warning=FALSE}
+pre_diab.kable
+```
+## Tables for means and CI's diab - no
+```{r echo=FALSE, fig.height=4, fig.width=3, message=FALSE, warning=FALSE}
+diab_no.kable
+```
+
+## AnyHealthcare No Diabetes and Prediabetes {.columns-2 .smaller}
+<div style="float: left">
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+AnyHealthcare.list[2]
+```
+
+<div style="float: left">
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+```{r echo=FALSE, fig.height=3, fig.width=4, message=FALSE, warning=FALSE}
+AnyHealthcare.list[1]
+```
+
+## AnyHealthcare Prediabetes and Diabetes {.columns-2 .smaller}
+<div style="float: left">
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+AnyHealthcare.list[4]
+```
+<div style="float: left">
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+```{r echo=FALSE,fig.height=3, fig.width=4, message=FALSE, warning=FALSE}
+AnyHealthcare.list[3]
+```
+
+
+## AnyHealthcare Diabetes and No Diabetes {.columns-2 .smaller}
+
+<div style="float: left">
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+AnyHealthcare.list[6]
+```
+<div style="float: left">
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+```{r echo=FALSE, fig.height=3, fig.width=4, message=FALSE, warning=FALSE}
+AnyHealthcare.list[5]
+```
+
+
+
+## Income No Diabetes and Prediabetes {.columns-2 .smaller}
+
+<div style="float: left">
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 HighBP.list[2]
 ```
 
-## HighBP Prediabetes and Diabetes
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-HighBP.list[3]
+<div style="float: left">
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+```{r echo=FALSE, fig.height=3, fig.width=4, message=FALSE, warning=FALSE}
+HighBP.list[1]
 ```
 
-## HighBP Prediabetes and Diabetes
+## Income Prediabetes and Diabetes {.columns-2 .smaller}
+<div style="float: left">
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 HighBP.list[4]
 ```
-
-## HighBP Diabetes and No Diabetes
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-HighBP.list[5]
+<div style="float: left">
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+```{r echo=FALSE, fig.height=3, fig.width=4, message=FALSE, warning=FALSE}
+HighBP.list[3]
 ```
 
-## HighBP Diabetes and No Diabetes
+
+## Income Diabetes and No Diabetes {.columns-2 .smaller}
+
+<div style="float: left">
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 HighBP.list[6]
 ```
-
-
-## Income No Diabetes and Prediabetes
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-Income.list[1]
+<div style="float: left">
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+```{r echo=FALSE,fig.height=3, fig.width=4, message=FALSE, warning=FALSE}
+HighBP.list[5]
 ```
-
-## Income No Diabetes and Prediabetes
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-Income.list[2]
-```
-
-## Income Prediabetes and Diabetes
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-Income.list[3]
-```
-
-## Income prediabetes and diabetes
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-Income.list[4]
-```
-
-## Income dieabetes and no diabetes
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-Income.list[5]
-```
-
-## Income diabetes and no diabetes
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-Income.list[6]
-```
-
