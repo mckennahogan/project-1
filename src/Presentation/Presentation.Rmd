@@ -750,12 +750,16 @@ income.norm = rbind(cbind("Diabetes"=rep(0,251),"Income"=BOOT.norm[["Income"]][[
 income.norm = as.data.frame(income.norm)
 income.norm$Diabetes = as.factor(income.norm$Diabetes)
 
+income.norm.CIspace = seq(0.5, 4, length.out=3)
 income_norm_plot = ggplot() +
   geom_histogram(aes(x=income.norm$Income, y=..count../sum(..count..)*100,
                      fill=income.norm$Diabetes), position="identity", bins=35) +
   geom_segment(aes(x=norm_income_table$lower, xend=norm_income_table$upper,
-                   y=seq(0.5, 4, length.out=3), yend=seq(0.5, 4, length.out=3)),
+                   y=income.norm.CIspace, yend=income.norm.CIspace),
                color=c("red", "green","blue"), fill="black", size=1) +
+  geom_segment(aes(x=norm_income_table$mean, xend=norm_income_table$mean,
+                   y=income.norm.CIspace-0.1, yend=income.norm.CIspace+0.1),
+               color=c("red", "green","blue"), size=0.75) +
   labs(title="Normal CI on Income", x="Income", y="Frequency", fill="Diabetes")
 
 #########################
@@ -765,13 +769,17 @@ income.stud = rbind(cbind("Diabetes"=rep(0,251),"Income"=BOOT.stud[["Income"]][[
 income.stud = as.data.frame(income.stud)
 income.stud$Diabetes = as.factor(income.stud$Diabetes)
 
+income.stud.CIspace = seq(1,6, length.out=3)
 income_stud_plot = ggplot() +
   geom_histogram(aes(x=income.stud$Income, y=..count../sum(..count..)*100,
                      fill=income.stud$Diabetes), position="identity", bins=35) +
   geom_segment(aes(x=stud_income_table$lower, xend=stud_income_table$upper,
-                   y=seq(1,6, length.out=3), yend=seq(1,6, length.out=3)),
+                   y=income.stud.CIspace, yend=income.stud.CIspace),
                color=c("red", "green","blue"), fill="black", size=1) +
-  labs(title="Student t CI on Income", x="Income", y="Frequency", fill="Diabetes")
+  geom_segment(aes(x=stud_income_table$mean, xend=stud_income_table$mean,
+                   y=income.stud.CIspace-0.1, yend=income.stud.CIspace+0.1),
+               color=c("red", "green","blue"), size=0.75) +
+  labs(title="Student-t CI on Income", x="Income", y="Frequency", fill="Diabetes")
 
 income_norm_plot + income_stud_plot + plot_layout(ncol = 2, guides = "collect")
 ```
@@ -813,12 +821,16 @@ BMI.norm = rbind(cbind("Diabetes"=rep(0,251),"BMI"=BOOT.norm[["BMI"]][[1]]$mean)
 BMI.norm = as.data.frame(BMI.norm)
 BMI.norm$Diabetes = as.factor(BMI.norm$Diabetes)
 
+BMI.norm.CIspace = seq(1, 7, length.out=3)
 BMI_norm_plot = ggplot() +
   geom_histogram(aes(x=BMI.norm$BMI, y=..count../sum(..count..)*100,
                      fill=BMI.norm$Diabetes), position="identity",bins=35) +
   geom_segment(aes(x=norm_BMI_table$lower, xend=norm_BMI_table$upper,
-                   y=seq(1, 7, length.out=3), yend=seq(1, 7, length.out=3)),
+                   y=BMI.norm.CIspace, yend=BMI.norm.CIspace),
                color=c("red", "green","blue"), fill="black", size=1) +
+  geom_segment(aes(x=norm_BMI_table$mean, xend=norm_BMI_table$mean,
+                   y=BMI.norm.CIspace-0.15, yend=BMI.norm.CIspace+0.15),
+               color=c("red", "green","blue"), size=0.75) +
   labs(title="Normal CI on BMI", x="BMI", y="Frequency", fill="Diabetes")
 
 #########################
@@ -828,13 +840,17 @@ BMI.stud = rbind(cbind("Diabetes"=rep(0,251),"BMI"=BOOT.stud[["BMI"]][[1]]$mean)
 BMI.stud = as.data.frame(BMI.stud)
 BMI.stud$Diabetes = as.factor(BMI.stud$Diabetes)
 
+BMI.stud.CIspace = seq(1, 10, length.out=3)
 BMI_stud_plot = ggplot() +
   geom_histogram(aes(x=BMI.stud$BMI, y=..count../sum(..count..)*100,
                      fill=BMI.stud$Diabetes), position="identity", bins=35) +
   geom_segment(aes(x=stud_BMI_table$lower, xend=stud_BMI_table$upper,
-                   y=seq(1, 10, length.out=3), yend=seq(1, 10, length.out=3)),
+                   y=BMI.stud.CIspace, yend=BMI.stud.CIspace),
                color=c("red", "green","blue"), fill="black", size=1) +
-  labs(title="Student t CI on BMI", x="BMI", y="Frequency", fill="Diabetes")
+  geom_segment(aes(x=stud_BMI_table$mean, xend=stud_BMI_table$mean,
+                   y=BMI.stud.CIspace-0.15, yend=BMI.stud.CIspace+0.15),
+               color=c("red", "green","blue"), size=0.75) +
+  labs(title="Student-t CI on BMI", x="BMI", y="Frequency", fill="Diabetes")
 
 BMI_norm_plot + BMI_stud_plot + plot_layout(ncol = 2, guides = "collect")
 ```
@@ -876,12 +892,16 @@ GenHlth.norm = rbind(cbind("Diabetes"=rep(0,251),"GenHlth"=BOOT.norm[["GenHlth"]
 GenHlth.norm = as.data.frame(GenHlth.norm)
 GenHlth.norm$Diabetes = as.factor(GenHlth.norm$Diabetes)
 
+GenHlth.norm.CIspace = seq(1, 6, length.out=3)
 GenHlth_norm_plot = ggplot() +
   geom_histogram(aes(x=GenHlth.norm$GenHlth, y=..count../sum(..count..)*100,
                      fill=GenHlth.norm$Diabetes), position="identity", bins=35) +
   geom_segment(aes(x=norm_GenHlth_table$lower, xend=norm_GenHlth_table$upper,
-                   y=seq(1, 6, length.out=3), yend=seq(1, 6, length.out=3)),
+                   y=GenHlth.norm.CIspace, yend=GenHlth.norm.CIspace),
                color=c("red", "green","blue"), fill="black", size=1) +
+  geom_segment(aes(x=norm_GenHlth_table$mean, xend=norm_GenHlth_table$mean,
+                   y=GenHlth.norm.CIspace-0.1, yend=GenHlth.norm.CIspace+0.1),
+               color=c("red", "green","blue"), size=0.75) +
   labs(title="Normal CI on GenHlth", x="GenHlth", y="Frequency", fill="Diabetes")
 
 #########################
@@ -891,13 +911,17 @@ GenHlth.stud = rbind(cbind("Diabetes"=rep(0,251),"GenHlth"=BOOT.stud[["GenHlth"]
 GenHlth.stud = as.data.frame(GenHlth.stud)
 GenHlth.stud$Diabetes = as.factor(GenHlth.stud$Diabetes)
 
+GenHlth.stud.CIspace = seq(1, 6, length.out=3)
 GenHlth_stud_plot = ggplot() +
   geom_histogram(aes(x=GenHlth.stud$GenHlth, y=..count../sum(..count..)*100,
                      fill=GenHlth.stud$Diabetes), position="identity", bins=35) +
   geom_segment(aes(x=stud_GenHlth_table$lower, xend=stud_GenHlth_table$upper,
-                   y=seq(1, 6, length.out=3), yend=seq(1, 6, length.out=3)),
+                   y=GenHlth.stud.CIspace, yend=GenHlth.stud.CIspace),
                color=c("red", "green","blue"), fill="black", size=1) +
-  labs(title="Student t CI on GenHlth", x="GenHlth", y="Frequency", fill="Diabetes")
+  geom_segment(aes(x=stud_GenHlth_table$mean, xend=stud_GenHlth_table$mean,
+                   y=GenHlth.stud.CIspace-0.15, yend=GenHlth.stud.CIspace+0.15),
+               color=c("red", "green","blue"), size=0.75) +
+  labs(title="Student-t CI on GenHlth", x="GenHlth", y="Frequency", fill="Diabetes")
 
 GenHlth_norm_plot + GenHlth_stud_plot + plot_layout(ncol = 2, guides = "collect")
 ```
@@ -939,12 +963,16 @@ HighBP.norm = rbind(cbind("Diabetes"=rep(0,251),"HighBP"=BOOT.norm[["HighBP"]][[
 HighBP.norm = as.data.frame(HighBP.norm)
 HighBP.norm$Diabetes = as.factor(HighBP.norm$Diabetes)
 
+HighBP.norm.CIspace = seq(1, 8, length.out=3)
 HighBP_norm_plot = ggplot() +
   geom_histogram(aes(x=HighBP.norm$HighBP, y=..count../sum(..count..)*100,
                      fill=HighBP.norm$Diabetes), position="identity", bins=35) +
   geom_segment(aes(x=norm_HighBP_table$lower, xend=norm_HighBP_table$upper,
-                   y=seq(1, 8, length.out=3), yend=seq(1, 8, length.out=3)),
+                   y=HighBP.norm.CIspace, yend=HighBP.norm.CIspace),
                color=c("red", "green","blue"), fill="black", size=1) +
+  geom_segment(aes(x=norm_HighBP_table$mean, xend=norm_HighBP_table$mean,
+                   y=HighBP.norm.CIspace-0.15, yend=HighBP.norm.CIspace+0.15),
+               color=c("red", "green","blue"), size=0.75) +
   labs(title="Normal CI on HighBP", fill="Diabetes",
        x="HighBP", y="Frequency")
 
@@ -955,12 +983,16 @@ HighBP.stud = rbind(cbind("Diabetes"=rep(0,251),"HighBP"=BOOT.stud[["HighBP"]][[
 HighBP.stud = as.data.frame(HighBP.stud)
 HighBP.stud$Diabetes = as.factor(HighBP.stud$Diabetes)
 
+HighBP.stud.CIspace = seq(1, 8, length.out=3)
 HighBP_stud_plot = ggplot() +
   geom_histogram(aes(x=HighBP.stud$HighBP, y=..count../sum(..count..)*100,
                      fill=HighBP.stud$Diabetes), position="identity", bins=35) +
   geom_segment(aes(x=stud_HighBP_table$lower, xend=stud_HighBP_table$upper,
-                   y=seq(1, 8, length.out=3), yend=seq(1, 8, length.out=3)),
+                   y=HighBP.stud.CIspace, yend=HighBP.stud.CIspace),
                color=c("red", "green","blue"), fill="black", size=1) +
+  geom_segment(aes(x=stud_HighBP_table$mean, xend=stud_HighBP_table$mean,
+                   y=HighBP.stud.CIspace-0.15, yend=HighBP.stud.CIspace+0.15),
+               color=c("red", "green","blue"), size=0.75) +
   labs(title="Student-t CI on HighBP", fill="Diabetes",
        x="HighBP", y="Frequency")
 
@@ -1009,12 +1041,16 @@ AnyHealthcare.norm = rbind(cbind("Diabetes"=rep(0,251),
 AnyHealthcare.norm = as.data.frame(AnyHealthcare.norm)
 AnyHealthcare.norm$Diabetes = as.factor(AnyHealthcare.norm$Diabetes)
 
+AnyHealthcare.norm.CIspace = seq(1, 15, length.out=3)
 AnyHealthcare_norm_plot = ggplot() +
   geom_histogram(aes(x=AnyHealthcare.norm$AnyHealthcare, y=..count../sum(..count..)*100,
                      fill=AnyHealthcare.norm$Diabetes), position="identity", bins=35) +
   geom_segment(aes(x=norm_AnyHealthcare_table$lower, xend=norm_AnyHealthcare_table$upper,
-                   y=seq(1, 15, length.out=3), yend=seq(1, 15, length.out=3)),
+                   y=AnyHealthcare.norm.CIspace, yend=AnyHealthcare.norm.CIspace),
                color=c("red", "green","blue"), fill="black", size=1) +
+  geom_segment(aes(x=norm_AnyHealthcare_table$mean, xend=norm_AnyHealthcare_table$mean,
+                   y=AnyHealthcare.norm.CIspace-0.8, yend=AnyHealthcare.norm.CIspace+0.8),
+               color=c("red", "green","blue"), size=0.75) +
   labs(title="Normal CI on AnyHealthcare", fill="Diabetes",
        x="AnyHealthcare", y="Frequency")
 
@@ -1028,13 +1064,17 @@ AnyHealthcare.stud = rbind(cbind("Diabetes"=rep(0,251),
 AnyHealthcare.stud = as.data.frame(AnyHealthcare.stud)
 AnyHealthcare.stud$Diabetes = as.factor(AnyHealthcare.stud$Diabetes)
 
+AnyHealthcare.stud.CIspace = seq(1, 15, length.out=3)
 AnyHealthcare_stud_plot = ggplot() +
   geom_histogram(aes(x=AnyHealthcare.stud$AnyHealthcare, y=..count../sum(..count..)*100,
                      fill=AnyHealthcare.stud$Diabetes),
                  position="identity", bins=35) +
   geom_segment(aes(x=stud_AnyHealthcare_table$lower, xend=stud_AnyHealthcare_table$upper,
-                   y=seq(1, 15, length.out=3), yend=seq(1, 15, length.out=3)),
+                   y=AnyHealthcare.stud.CIspace, yend=AnyHealthcare.stud.CIspace),
                color=c("red", "green","blue"), fill="black", size=1) +
+  geom_segment(aes(x=stud_AnyHealthcare_table$mean, xend=stud_AnyHealthcare_table$mean,
+                   y=AnyHealthcare.stud.CIspace-0.8, yend=AnyHealthcare.stud.CIspace+0.8),
+               color=c("red", "green","blue"), size=0.75) +
   labs(title="Student-t CI on AnyHealthcare", fill="Diabetes",
        x="AnyHealthcare", y="Frequency")
 
