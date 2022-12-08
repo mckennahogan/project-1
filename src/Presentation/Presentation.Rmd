@@ -603,6 +603,14 @@ for (i in 1:5) {
  - We used a Standard Normal Bootstrap for each classification, (No Diabetes, Pre-Diabetes, and Diabetes), and pulled out our factors of interest, (Income, BMI, GenHlth, HighBP, and AnyHealthcare).
 
  - We also used different values of sample size, `n`, and number of samples, `m`, to showcase the power of bootstrapping with Normal distributions
+ 
+### Assumptions:
+
+ - Need $\hat{\theta}\sim N(E[\hat{\theta}],\,\hat{\text{se}}(\hat{\theta})^2)$
+ 
+ - Need $\hat{\theta}$ to be unbiased
+ 
+ - Large sample size
 
 ## Pairs of `m` and `n` values
 Tables of standard error of our estimators
@@ -676,6 +684,12 @@ TABLES_norm[["AnyHealthcare"]][[3]]
  - We also used different values of sample size, `n`, and number of samples, `m`, to showcase the difference of double bootstrapping with Student-t distributions
  
  - We wanted to show that larger and more samples decreased our standard error of our estimator
+ 
+### Assumptions:
+
+ - Small bias and skewness of $\hat{\theta}$
+ 
+ - Need $\hat{\theta}$ independent of $\hat{\text{se}}(\hat{\theta})$
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 BOOT.norm = ALL_DATA_norm[[5]][[5]]
@@ -1027,6 +1041,11 @@ AnyHealthcare_stud_plot = ggplot() +
 AnyHealthcare_norm_plot + AnyHealthcare_stud_plot + plot_layout(ncol = 2, guides = "collect")
 ```
 
+## Normal and Student-t Bootstrap Analysis
+
+ - Across all factors, we saw that the Normal CIs were much smaller than Student-t CIs
+ - Each factor had about a normal distribution of means
+ - 26 minutes!! 
 
 ```{r functions, message=FALSE, warning=FALSE, include=FALSE}
 set.seed(26)
@@ -1458,5 +1477,61 @@ Incomeplot <- ggplot(data=f3,aes(x = Income,fill = group))+
 Income.kable
 Income.kable2
 Incomeplot
+```
+
+## Conclusion
+
+```{r Conclusion1, echo=FALSE, message=FALSE, warning=FALSE}
+algos.names = c("Percentile", "Basic", "Normal", "Student-t", "BCa")
+
+#####################################################
+conc_table_np = rbind("Income"=c(T,T,T,F,T),
+                      "BMI"=c(T,T,T,T,T),
+                      "GenHlth"=c(T,T,T,F,T),
+                      "HighBP"=c(T,T,T,F,T),
+                      "Hlthcare"=c(F,F,F,F,F),
+                      "HighChol"=c(T,T,T,T,T))
+colnames(conc_table_np) = algos.names
+conc_table_np = t(conc_table_np)
+conc_kable_np = kable(conc_table_np, caption="No-Pre Difference in Means", format = "html") %>%
+  kable_styling(full_width=F, position="float_left", font_size=10) %>%
+  row_spec(0, bold=T, font_size=14) %>% row_spec(0:5, align="c") %>%
+  column_spec(1, bold = TRUE, border_right = TRUE, width="6em")
+
+#####################################################
+conc_table_pd = rbind("Income"=c(T,T,F,F,T),
+                      "BMI"=c(T,T,T,T,F),
+                      "GenHlth"=c(T,T,T,F,T),
+                      "HighBP"=c(T,T,T,T,F),
+                      "Hlthcare"=c(T,F,T,F,F),
+                      "HighChol"=c(T,T,T,F,F))
+colnames(conc_table_pd) = algos.names
+conc_table_pd = t(conc_table_pd)
+conc_kable_pd = kable(conc_table_pd, caption="Pre-Diab Difference in Means",
+                      format = "html") %>%
+  kable_styling(full_width=F, position="left", font_size=10) %>%
+  row_spec(0, bold=T, font_size=14) %>% row_spec(0:5, align="c") %>%
+  column_spec(1, bold = TRUE, border_right = TRUE, width="6em")
+
+#####################################################
+conc_table_nd = rbind("Income"=c(F,T,T,F,T),
+                      "BMI"=c(T,T,T,F,T),
+                      "GenHlth"=c(T,T,T,F,T),
+                      "HighBP"=c(T,T,T,F,T),
+                      "Hlthcare"=c(T,T,T,T,F),
+                      "HighChol"=c(T,T,T,F,T))
+colnames(conc_table_nd) = algos.names
+conc_table_nd = t(conc_table_nd)
+conc_kable_nd = kable(conc_table_nd, caption="No-Diab Difference in Means",
+                      format = "html") %>%
+  kable_styling(full_width=F, position="center", font_size=10) %>%
+  row_spec(0, bold=T, font_size=14) %>% row_spec(0:5, align="c") %>%
+  column_spec(1, bold = TRUE, border_right = TRUE, width="6em")
+```
+
+```{r Conclusion2, echo=FALSE, message=FALSE, warning=FALSE}
+conc_kable_np
+conc_kable_pd
+conc_kable_nd
 ```
 
