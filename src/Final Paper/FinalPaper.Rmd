@@ -4,3 +4,17 @@ author: "Jorie Alvis, McKenna Hogan, and Cadeon Ott"
 output: pdf_document
 
 ---
+
+# Dataset
+
+# Methods
+
+# Results
+
+## Percentile and Basic
+
+## Normal and Studentized
+
+## BCa
+
+# Overall Results
