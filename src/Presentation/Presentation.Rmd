@@ -590,9 +590,10 @@ for (i in 1:5) {
   for (j in 1:5) {
     n = n_list[j]
     
-    boot_data = bootSample(data.main, m, n)
-    ALL_DATA_norm[[i]][[j]] = normal_boot(boot_data, factors_list)
-    ALL_DATA_stud[[i]][[j]] = student_t_boot(boot_data, factors_list)
+    boot_data1 = bootSample(data.main, m, n)
+    boot_data2 = bootSample(data.main, m, n)
+    ALL_DATA_norm[[i]][[j]] = normal_boot(boot_data1, factors_list)
+    ALL_DATA_stud[[i]][[j]] = student_t_boot(boot_data2, factors_list)
   }
 }
 ```
