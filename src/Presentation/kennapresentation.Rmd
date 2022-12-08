@@ -20,6 +20,17 @@ library(kableExtra)
 library(gridExtra)
 ```
 
+## Percentile and Basic Bootstraps
+
+- I analyzed the variables HighBP, HighChol, BMI, AnyHealthcare, GenHlth, 
+and Income for differences in means among no diabetes, prediabetes, and diabetes.
+
+- Overall, I found that there was a significant differece in means for all the
+variables analyzed among the combinations of no diabetes, prediabetes, and diabetes.
+
+- There was small difference between the CI's for the percentile and basic bootstraps
+which matched my findings for small bias
+
 ```{r data, message=FALSE, warning=FALSE, include=FALSE}
 #skewed data
 diab.data1<- read_csv("~/STAT400/Project 1/data/diabetes_012_health_indicators_BRFSS2015.csv")
@@ -38,7 +49,6 @@ diab.only.1<-diab.data1|>
   filter(Diabetes_012==2)|>
   select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
 ```
-
 
 ```{r new function data, message=FALSE, warning=FALSE, include=FALSE}
 
@@ -205,9 +215,9 @@ pre_diab.kable<-kable(pre_diab.table,caption="pre-diab",
 diab_no.row1<-c(HighBP.list[[9]],HighBP.list[[6]][["percent"]][[4]],
               HighBP.list[[6]][["percent"]][[5]],
         HighBP.list[[6]][["basic"]][[4]],HighBP.list[[6]][["basic"]][[5]])
-diab_no.row2<-c(HighChol.list[[9]],HighChol.list[[2]][["percent"]][[4]],
+diab_no.row2<-c(HighChol.list[[9]],HighChol.list[[6]][["percent"]][[4]],
         HighChol.list[[6]][["percent"]][[5]],
-        HighChol.list[[6]][["basic"]][[4]],HighChol.list[[2]][["basic"]][[5]])
+        HighChol.list[[6]][["basic"]][[4]],HighChol.list[[6]][["basic"]][[5]])
 diab_no.row3<-c(BMI.list[[9]],BMI.list[[6]][["percent"]][[4]],BMI.list[[6]][["percent"]][[5]],
         BMI.list[[6]][["basic"]][[4]],BMI.list[[6]][["basic"]][[5]])
 diab_no.row4<-c(AnyHealthcare.list[[9]],AnyHealthcare.list[[6]][["percent"]][[4]],
@@ -230,17 +240,6 @@ diab_no.kable<-kable(diab_no.table,caption="diab-no",
 
 ```
 
-
-## Percentile and Basic Bootstraps
-
-- I analyzed the variables HighBP, HighChol, BMI, AnyHealthcare, GenHlth, 
-and Income for differences in means among no diabetes, prediabetes, and diabetes.
-
-- Overall, I found that there was a significant differece in means for all the
-variables analyzed among the combinations of no diabetes, prediabetes, and diabetes.
-
-- There was small difference between the CI's for the percentile and basic bootstraps
-which matched my findings for small bias
 
 
 ## Tables for means and CI's no - pre
