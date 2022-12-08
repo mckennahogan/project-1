@@ -27,11 +27,15 @@ We got our dataset from kaggle:
 
 The dataset consisted of health indicators for people with no diabetes, prediabetes, and diabetes.
 
-We chose to work with the varibles HighBP, HighChol, BMI, AnyHealthcare, GenHlth, and Income
+We chose to focus on the variables HighBP, HighChol, BMI, AnyHealthcare, GenHlth, and Income out of the 21 factors in the dataset
 
-High BP, HighChol, and AnyHealthcare were binary while the others werent.
+ - High BP, HighChol, and AnyHealthcare are binary
+ 
+ - GenHlth has 5 levels
+ 
+ - BMI and Income are continuous 
 
-We decided to bootstrap our data because there was a massive difference in sample sizes for the 3 groups of people
+We decided to bootstrap our data because there was a massive difference in sample sizes for the 3 classifications of patients
 
 Each of us did a different kind of bootsrapping method
 
