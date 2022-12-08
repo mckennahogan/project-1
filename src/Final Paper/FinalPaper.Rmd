@@ -1,0 +1,6 @@
+---
+title: "Bootstrapping Diabetes Data to Illuminate Factors Final Paper"
+author: "Jorie Alvis, McKenna Hogan, and Cadeon Ott"
+output: pdf_document
+
+---
