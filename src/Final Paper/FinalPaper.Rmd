@@ -5,9 +5,68 @@ output: pdf_document
 
 ---
 
+```{r libraries, message=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse)
+library(knitr)
+library(dplyr)
+library(simpleboot)
+library(boot) 
+library(kableExtra)
+library(patchwork)
+library("cowplot")
+library(gridExtra)
+library(cowplot)
+set.seed(400)
+```
+
+
 # Dataset
 
+We got our dataset from kaggle:
+
+The dataset consisted of health indicators for people with no diabetes, prediabetes, and diabetes.We chose to focus on the variables HighBP, HighChol, BMI, AnyHealthcare, GenHlth, and Income out of the 21 factors in the dataset
+
+ - High BP, HighChol, and AnyHealthcare are binary
+ 
+ - GenHlth has 5 levels
+ 
+ - BMI and Income are continuous 
+
+```{r KenData, message=FALSE, warning=FALSE, include=FALSE}
+#skewed data
+diab.data1<- read_csv("../../data/diabetes_012_health_indicators_BRFSS2015.csv")
+#unskewed data
+diab.data2<- 
+  read_csv("../../data/diabetes_binary_5050split_health_indicators_BRFSS2015.csv")
+diab.data3<- read_csv("../../data/diabetes_binary_health_indicators_BRFSS2015.csv")
+
+nodiab.only.1<-diab.data1|>
+  filter(Diabetes_012==0)|>
+  select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
+prediab.only.1<-diab.data1|>
+  filter(Diabetes_012==1)|>
+  select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
+diab.only.1<-diab.data1|>
+  filter(Diabetes_012==2)|>
+  select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
+```
+
+<div style="float: right">
+```{r echo=FALSE, fig.height=4, fig.width=4, message=FALSE, warning=FALSE}
+ggplot(data=diab.data1)+
+  geom_bar(aes(x=Diabetes_012), fill="blue")+
+  labs(x="indicator",title="Diabetes Data")
+```
+
 # Methods
+
+We decided to bootstrap our data because there was a massive difference in sample sizes for the 3 classifications of patients. We utilized all 5 types of bootsrapping
+
+## Percentile and Basic
+
+## Normal and Studentized
+
+## BCa
 
 # Results
 
