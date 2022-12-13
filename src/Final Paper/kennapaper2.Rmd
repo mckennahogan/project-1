@@ -1,23 +1,26 @@
 ---
-title: "Bootstrapping Diabetes Data to Illuminate Factors Final Paper"
-author: "Jorie Alvis, McKenna Hogan, and Cadeon Ott"
+title: "Untitled"
+author: "McKenna Hogan"
+date: '2022-12-08'
 output: pdf_document
-
 ---
 
-```{r libraries, message=FALSE, warning=FALSE, include=FALSE}
+```{r setup, message=FALSE, warning=FALSE, include=FALSE}
 library(tidyverse)
 library(knitr)
+library(tinytex)
 library(dplyr)
 library(simpleboot)
-library(boot) 
+library(boot)
 library(kableExtra)
 library(patchwork)
 library("cowplot")
 library(gridExtra)
-library(cowplot)
+
 set.seed(400)
 ```
+
+
 
 
 # Dataset
