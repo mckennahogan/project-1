@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.12.8)  13 DEC 2022 18:30
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.12.8)  13 DEC 2022 20:22
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -547,7 +547,7 @@ LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 99
 (/data/accounts/fa22/mckennahogan/.TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-<kennapaper_files/figure-latex/unnamed-chunk-1-1.pdf, id=52, 469.755pt x 325.215pt>
+<kennapaper_files/figure-latex/unnamed-chunk-1-1.pdf, id=44, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-1-1.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-1-1.pdf>
 Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-1-1.pdf  used on input line 106.
@@ -556,28 +556,28 @@ Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-1-1.pdf  us
 
 {/data/accounts/fa22/mckennahogan/.TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./kennapaper_files/figure-latex/unnamed-chunk-1-1.pdf>]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 151.
+(Font)              <10> on input line 154.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 151.
+(Font)              <7> on input line 154.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 151.
-<kennapaper_files/figure-latex/unnamed-chunk-3-1.pdf, id=71, 469.755pt x 325.215pt>
+(Font)              <5> on input line 154.
+<kennapaper_files/figure-latex/unnamed-chunk-3-1.pdf, id=63, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-3-1.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-3-1.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-3-1.pdf  used on input line 221.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
-<kennapaper_files/figure-latex/unnamed-chunk-3-2.pdf, id=72, 469.755pt x 325.215pt>
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-3-1.pdf  used on input line 224.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
+<kennapaper_files/figure-latex/unnamed-chunk-3-2.pdf, id=64, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-3-2.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-3-2.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-3-2.pdf  used on input line 222.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
-<kennapaper_files/figure-latex/unnamed-chunk-3-3.pdf, id=73, 469.755pt x 325.215pt>
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-3-2.pdf  used on input line 225.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
+<kennapaper_files/figure-latex/unnamed-chunk-3-3.pdf, id=65, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-3-3.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-3-3.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-3-3.pdf  used on input line 223.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-3-3.pdf  used on input line 226.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
 
-Overfull \hbox (98.3854pt too wide) in paragraph at lines 221--224
+Overfull \hbox (27.93956pt too wide) in paragraph at lines 224--227
 [][] [] [] 
  []
 
@@ -585,70 +585,70 @@ Overfull \hbox (98.3854pt too wide) in paragraph at lines 221--224
 pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.225 H
+l.228 H
        igh Cholesterol:
 pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.225 H
+l.228 H
        igh Cholesterol:]
-<kennapaper_files/figure-latex/unnamed-chunk-4-1.pdf, id=83, 469.755pt x 325.215pt>
+<kennapaper_files/figure-latex/unnamed-chunk-4-1.pdf, id=76, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-4-1.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-4-1.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-4-1.pdf  used on input line 227.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
-<kennapaper_files/figure-latex/unnamed-chunk-4-2.pdf, id=84, 469.755pt x 325.215pt>
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-4-1.pdf  used on input line 230.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
+<kennapaper_files/figure-latex/unnamed-chunk-4-2.pdf, id=77, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-4-2.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-4-2.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-4-2.pdf  used on input line 228.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
-<kennapaper_files/figure-latex/unnamed-chunk-4-3.pdf, id=85, 469.755pt x 325.215pt>
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-4-2.pdf  used on input line 231.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
+<kennapaper_files/figure-latex/unnamed-chunk-4-3.pdf, id=78, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-4-3.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-4-3.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-4-3.pdf  used on input line 229.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-4-3.pdf  used on input line 232.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
 
-Overfull \hbox (98.3854pt too wide) in paragraph at lines 227--230
+Overfull \hbox (27.93956pt too wide) in paragraph at lines 230--233
 [][] [] [] 
  []
 
-<kennapaper_files/figure-latex/unnamed-chunk-5-1.pdf, id=86, 469.755pt x 325.215pt>
+<kennapaper_files/figure-latex/unnamed-chunk-5-1.pdf, id=79, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-5-1.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-5-1.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-5-1.pdf  used on input line 233.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
-<kennapaper_files/figure-latex/unnamed-chunk-5-2.pdf, id=87, 469.755pt x 325.215pt>
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-5-1.pdf  used on input line 236.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
+<kennapaper_files/figure-latex/unnamed-chunk-5-2.pdf, id=80, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-5-2.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-5-2.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-5-2.pdf  used on input line 234.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
-<kennapaper_files/figure-latex/unnamed-chunk-5-3.pdf, id=88, 469.755pt x 325.215pt>
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-5-2.pdf  used on input line 237.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
+<kennapaper_files/figure-latex/unnamed-chunk-5-3.pdf, id=81, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-5-3.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-5-3.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-5-3.pdf  used on input line 235.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-5-3.pdf  used on input line 238.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
 
-Overfull \hbox (98.3854pt too wide) in paragraph at lines 233--236
+Overfull \hbox (27.93956pt too wide) in paragraph at lines 236--239
 [][] [] [] 
  []
 
-<kennapaper_files/figure-latex/unnamed-chunk-6-1.pdf, id=89, 469.755pt x 325.215pt>
+<kennapaper_files/figure-latex/unnamed-chunk-6-1.pdf, id=82, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-6-1.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-6-1.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-6-1.pdf  used on input line 239.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
-<kennapaper_files/figure-latex/unnamed-chunk-6-2.pdf, id=90, 469.755pt x 325.215pt>
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-6-1.pdf  used on input line 242.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
+<kennapaper_files/figure-latex/unnamed-chunk-6-2.pdf, id=83, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-6-2.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-6-2.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-6-2.pdf  used on input line 240.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
-<kennapaper_files/figure-latex/unnamed-chunk-6-3.pdf, id=91, 469.755pt x 325.215pt>
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-6-2.pdf  used on input line 243.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
+<kennapaper_files/figure-latex/unnamed-chunk-6-3.pdf, id=84, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-6-3.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-6-3.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-6-3.pdf  used on input line 241.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-6-3.pdf  used on input line 244.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
 
-Overfull \hbox (98.3854pt too wide) in paragraph at lines 239--242
+Overfull \hbox (27.93956pt too wide) in paragraph at lines 242--245
 [][] [] [] 
  []
 
@@ -656,45 +656,45 @@ Overfull \hbox (98.3854pt too wide) in paragraph at lines 239--242
 pdfTeX warning (ext4): destination with the same identifier (name{table.3}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.243 A
+l.246 A
        ny Healthcare (Incdicator): <./kennapaper_files/figure-latex/unnamed-chunk-3-1.pdf> <./kennapaper_files/figure-latex/unnamed-chunk-3-2.pdf> <./kennapaper_files/figure-latex/unnamed-chunk-3-3.pdf> <./kennapaper_files/figure-latex/unnamed-chunk-4-1.pdf> <./kennapaper_files/figure-latex/unnamed-chunk-4-2.pdf> <./kennapaper_files/figure-latex/unnamed-chunk-4-3.pdf> <./kennapaper_files/figure-latex/unnamed-chunk-5-1.pdf> <./kennapaper_files/figure-latex/unnamed-chunk-5-2.pdf> <./kennapaper_files/figure-latex/unnamed-chunk-5-3.pdf>]
-<kennapaper_files/figure-latex/unnamed-chunk-7-1.pdf, id=142, 469.755pt x 325.215pt>
+<kennapaper_files/figure-latex/unnamed-chunk-7-1.pdf, id=135, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-7-1.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-7-1.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-7-1.pdf  used on input line 245.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
-<kennapaper_files/figure-latex/unnamed-chunk-7-2.pdf, id=143, 469.755pt x 325.215pt>
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-7-1.pdf  used on input line 248.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
+<kennapaper_files/figure-latex/unnamed-chunk-7-2.pdf, id=136, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-7-2.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-7-2.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-7-2.pdf  used on input line 246.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
-<kennapaper_files/figure-latex/unnamed-chunk-7-3.pdf, id=144, 469.755pt x 325.215pt>
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-7-2.pdf  used on input line 249.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
+<kennapaper_files/figure-latex/unnamed-chunk-7-3.pdf, id=137, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-7-3.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-7-3.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-7-3.pdf  used on input line 247.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-7-3.pdf  used on input line 250.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
 
-Overfull \hbox (98.3854pt too wide) in paragraph at lines 245--248
+Overfull \hbox (27.93956pt too wide) in paragraph at lines 248--251
 [][] [] [] 
  []
 
-<kennapaper_files/figure-latex/unnamed-chunk-8-1.pdf, id=145, 469.755pt x 325.215pt>
+<kennapaper_files/figure-latex/unnamed-chunk-8-1.pdf, id=138, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-8-1.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-8-1.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-8-1.pdf  used on input line 251.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
-<kennapaper_files/figure-latex/unnamed-chunk-8-2.pdf, id=146, 469.755pt x 325.215pt>
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-8-1.pdf  used on input line 254.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
+<kennapaper_files/figure-latex/unnamed-chunk-8-2.pdf, id=139, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-8-2.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-8-2.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-8-2.pdf  used on input line 252.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
-<kennapaper_files/figure-latex/unnamed-chunk-8-3.pdf, id=147, 469.755pt x 325.215pt>
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-8-2.pdf  used on input line 255.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
+<kennapaper_files/figure-latex/unnamed-chunk-8-3.pdf, id=140, 469.755pt x 325.215pt>
 File: kennapaper_files/figure-latex/unnamed-chunk-8-3.pdf Graphic file (type pdf)
 <use kennapaper_files/figure-latex/unnamed-chunk-8-3.pdf>
-Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-8-3.pdf  used on input line 253.
-(pdftex.def)             Requested size: 187.89867pt x 130.0837pt.
+Package pdftex.def Info: kennapaper_files/figure-latex/unnamed-chunk-8-3.pdf  used on input line 256.
+(pdftex.def)             Requested size: 164.41672pt x 113.82695pt.
 
-Overfull \hbox (98.3854pt too wide) in paragraph at lines 251--254
+Overfull \hbox (27.93956pt too wide) in paragraph at lines 254--257
 [][] [] [] 
  []
 
@@ -703,21 +703,21 @@ Overfull \hbox (98.3854pt too wide) in paragraph at lines 251--254
 LaTeX Warning: There were multiply-defined labels.
 
 Package rerunfilecheck Info: File `kennapaper.out' has not changed.
-(rerunfilecheck)             Checksum: FCE91C34C008A6D28AFC74BEC125C5B8;1321.
+(rerunfilecheck)             Checksum: 47BCB74F36172FAB425283958BD43984;1159.
  ) 
 Here is how much of TeX's memory you used:
- 12457 strings out of 476928
- 206091 string characters out of 5823560
- 546037 words of memory out of 5000000
- 33425 multiletter control sequences out of 15000+600000
+ 12449 strings out of 476928
+ 206003 string characters out of 5823560
+ 545975 words of memory out of 5000000
+ 33421 multiletter control sequences out of 15000+600000
  512020 words of font info for 67 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  72i,9n,77p,248b,437s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {/data/accounts/fa22/mckennahogan/.TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{/data/accounts/fa22/mckennahogan/.TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}</data/accounts/fa22/mckennahogan/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></data/accounts/fa22/mckennahogan/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></data/accounts/fa22/mckennahogan/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb></data/accounts/fa22/mckennahogan/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb>
-Output written on kennapaper.pdf (4 pages, 193284 bytes).
+Output written on kennapaper.pdf (4 pages, 193553 bytes).
 PDF statistics:
- 235 PDF objects out of 1000 (max. 8388607)
- 180 compressed objects within 2 object streams
- 32 named destinations out of 1000 (max. 500000)
- 192 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 224 PDF objects out of 1000 (max. 8388607)
+ 169 compressed objects within 2 object streams
+ 28 named destinations out of 1000 (max. 500000)
+ 176 words of extra memory for PDF output out of 10000 (max. 10000000)
 

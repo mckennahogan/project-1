@@ -2,7 +2,7 @@
 title: "kenna presentation"
 author: "McKenna Hogan"
 date: "2022-12-14"
-output: pdf_document
+output: html_document
 ---
 
 ```{r libraries, message=FALSE, warning=FALSE, include=FALSE}
@@ -72,6 +72,8 @@ For the percentile and basic bootstrapping, I decided to focus on the difference
 ## BCa
 
 # Results
+
+## Percentile and Basic
 
 ```{r KenData2, message=FALSE, warning=FALSE, include=FALSE}
 #skewed data
@@ -171,9 +173,36 @@ diff.means<-function(data0,data1,data2,R){
                      xend=boot.diab_no$basic[5],col="basic"),size=1.5)+
     xlab("mean(diabetes) - mean(no diabetes)")
 
+  
   mean.no_pre<-mean(no_pre$t)
   mean.pre_diab<-mean(pre_diab$t)
   mean.diab_no<-mean(diab_no$t)
+  
+  # nodibindic <- rep("No Diabetes - Prediabetes",1000)
+  # predibindic <- rep("Prediabetes - Diabetes",1000)
+  # dibindic <- rep("Diabetes - No Diabetes",1000)
+  # indic <- c(nodibindic,predibindic,dibindic)
+  # 
+  # combination<-c(no_pre$t,pre_diab$t,diab_no$t)
+  # hist.stuff<-data.frame(combination,group=indic)
+  # overall.hist<- ggplot(data=hist.stuff,aes(x=combination,fill=group))+
+  #   geom_histogram()+    
+  #   geom_segment(aes(y=400,yend=400,x=boot.no_pre$percent[4],
+  #                    xend=boot.no_pre$percent[5], col="percentile"),size=1.5)+
+  #   geom_segment(aes(y=420,yend=420,x=boot.no_pre$basic[4],
+  #                    xend=boot.no_pre$basic[5],col="basic"),size=1.5)+
+  #   geom_histogram(aes(pre_diab$t),fill="deepskyblue") +
+  #   geom_segment(aes(y=400,yend=400,x=boot.pre_diab$percent[4],
+  #                    xend=boot.pre_diab$percent[5], col="percentile"),size=1.5)+
+  #   geom_segment(aes(y=420,yend=420,x=boot.pre_diab$basic[4],
+  #                    xend=boot.pre_diab$basic[5],col="basic"),size=1.5)+
+  #   geom_segment(aes(y=400,yend=400,x=boot.diab_no$percent[4],
+  #                    xend=boot.diab_no$percent[5], col="percentile"),size=1.5)+
+  #   geom_segment(aes(y=420,yend=420,x=boot.diab_no$basic[4],
+  #                    xend=boot.diab_no$basic[5],col="basic"),size=1.5)+
+  #   xlab("groups")
+    
+    
   return(list(plot.no_pre, boot.no_pre,
               plot.pre_diab, boot.pre_diab,
               plot.diab_no, boot.diab_no,
@@ -194,7 +223,6 @@ AnyHealthcare.list<-diff.means(AnyHealthcare0,AnyHealthcare1,AnyHealthcare2,1000
 GenHlth.list<-diff.means(GenHlth0,GenHlth1,GenHlth2,1000)
 
 Income.list<-diff.means(Income0,Income1,Income2,1000)
-
 ```
 
 ```{r making kables, message=FALSE, warning=FALSE, include=FALSE}
@@ -220,8 +248,7 @@ no_pre.table<-rbind(no_pre.row1,no_pre.row2,no_pre.row3,no_pre.row4,no_pre.row5,
 rownames(no_pre.table)<-c("HighBP","HighChol","BMI","AnyHealthcare","GenHlth","Income")
 colnames(no_pre.table)<-c("mean","low percentile","high percentile","low basic","high basic")
 no_pre.kable<-kable(no_pre.table,caption="No Diabetes - Prediabetes",
-                    digits=3,align="c")|>
-  kable_paper("hover", full_width = F)
+                    digits=3,align="c") |> kable_paper("hover", full_width = F)
 
 ##
 
@@ -284,8 +311,11 @@ diab_no.kable<-kable(diab_no.table,caption="Diabetes - No Diabetes",
 
 In my results, I found that there was a significant difference in means for most of my combinations. The only variable that didn't have consistent significant difference in means was the AnyHealthcare variable. I also found that the percentile and basic bootstraps were very similar which matched both my assumption and my findings for 0 SE. 
 
+
 The following are tables showing the difference in means among the combinations of no diabetes, prediabetes, and diabetes for all the variables and for both kinds of bootstrapping:
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.height='50%',out.height='50%'}
 no_pre.kable
 pre_diab.kable
 diab_no.kable
@@ -295,58 +325,58 @@ diab_no.kable
 The following are the histograms for each combination of difference in means for:
 
 High Blood Pressure:
-```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='40%', out.height='30%'}
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='30%', out.height='30%'}
 HighBP.list[[1]]
 HighBP.list[[3]]
 HighBP.list[[5]]
 ```
 
 High Cholesterol:
-```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='40%', out.height='30%'}
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='30%', out.height='30%'}
 HighChol.list[[1]]
 HighChol.list[[3]]
 HighChol.list[[5]]
 ```
 
 Body Mass Index (BMI):
-```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='40%', out.height='30%'}
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='30%', out.height='30%'}
 BMI.list[[1]]
 BMI.list[[3]]
 BMI.list[[5]]
 ```
 
 General Health:
-```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='40%', out.height='30%'}
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='30%', out.height='30%'}
 GenHlth.list[[1]]
 GenHlth.list[[3]]
 GenHlth.list[[5]]
 ```
 
 Any Healthcare (Incdicator):
-```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='40%', out.height='30%'}
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='30%', out.height='30%'}
 AnyHealthcare.list[[1]]
 AnyHealthcare.list[[3]]
 AnyHealthcare.list[[5]]
 ```
 
 Income:
-```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='40%', out.height='30%'}
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='30%', out.height='30%'}
 Income.list[[1]]
 Income.list[[3]]
 Income.list[[5]]
 ```
 
-
-
-## Percentile and Basic
+As you can see from these histograms, 0 is almsot never included in the interval. The only times 0 is in the interval is for AnyHealthcare. This means that the difference in means between no no diabetes and prediabetes, prediabetes and diabetes, and diabetes and no diabetes are significant for every variable but AnyHealthcare. The fact that the basic and percentile CI's are extremely similar show that there is no bias in the samples. This matched the outputted values for SE.
 
 ## Normal and Studentized
 
 ## BCa
 
 # Overall Results
-
-# Methods
-
-# Results
 
