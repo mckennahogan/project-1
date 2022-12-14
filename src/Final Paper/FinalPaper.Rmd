@@ -73,6 +73,8 @@ For the percentile and basic bootstrapping, I decided to focus on the difference
 
 # Results
 
+## Percentile and Basic
+
 ```{r KenData2, message=FALSE, warning=FALSE, include=FALSE}
 #skewed data
 diab.data1<- read_csv("../../data/diabetes_012_health_indicators_BRFSS2015.csv")
@@ -294,10 +296,6 @@ diab_no.kable
 
 The following are the histograms for each combination of difference in means:
 
-
-
-
-## Percentile and Basic
 
 ## Normal and Studentized
 

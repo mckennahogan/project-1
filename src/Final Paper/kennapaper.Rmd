@@ -5,7 +5,7 @@ date: "2022-12-14"
 output: pdf_document
 ---
 
-```{r setup, message=FALSE, warning=FALSE, include=FALSE}
+```{r libraries, message=FALSE, warning=FALSE, include=FALSE}
 library(tidyverse)
 library(knitr)
 library(dplyr)
@@ -15,9 +15,63 @@ library(kableExtra)
 library(patchwork)
 library("cowplot")
 library(gridExtra)
-library(tinytex)
+library(cowplot)
 set.seed(400)
 ```
+
+
+# Dataset
+
+We got our dataset from kaggle:
+
+The dataset consisted of health indicators for people with no diabetes, prediabetes, and diabetes.We chose to focus on the variables HighBP, HighChol, BMI, AnyHealthcare, GenHlth, and Income out of the 21 factors in the dataset
+
+ - High BP, HighChol, and AnyHealthcare are binary
+ 
+ - GenHlth has 5 levels
+ 
+ - BMI and Income are continuous 
+
+```{r KenData, message=FALSE, warning=FALSE, include=FALSE}
+#skewed data
+diab.data1<- read_csv("../../data/diabetes_012_health_indicators_BRFSS2015.csv")
+#unskewed data
+diab.data2<- 
+  read_csv("../../data/diabetes_binary_5050split_health_indicators_BRFSS2015.csv")
+diab.data3<- read_csv("../../data/diabetes_binary_health_indicators_BRFSS2015.csv")
+
+nodiab.only.1<-diab.data1|>
+  filter(Diabetes_012==0)|>
+  select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
+prediab.only.1<-diab.data1|>
+  filter(Diabetes_012==1)|>
+  select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
+diab.only.1<-diab.data1|>
+  filter(Diabetes_012==2)|>
+  select(HighBP,HighChol,BMI,AnyHealthcare,GenHlth,Income)
+```
+
+```{r echo=FALSE, out.width = '70%', message=FALSE, warning=FALSE}
+ggplot(data=diab.data1)+
+  geom_bar(aes(x=Diabetes_012), fill="blue")+
+  labs(x="No Diabetes                       Prediabetes                        Diabetes",
+       title="Diabetes Data")
+```
+
+# Methods
+
+We decided to bootstrap our data because there was a massive difference in sample sizes for the 3 classifications of patients. We utilized all 5 types of bootsrapping. 
+
+
+## Percentile and Basic
+
+For the percentile and basic bootstrapping, I decided to focus on the difference in means and seeing if there was any difference between the two types of bootstrapping to check my assumptions bout biasness. If there was a large difference between my methods, that would have meant there was bias in the sample. My calculations showed no bias so I wanted to make sure that my bootstrapping methods matched this finding. I used R=1000 for each bootstrap and found the difference in means for each variable for the 3 combinations of no diabetes, prediabetes, and diabetes.
+
+## Normal and Studentized
+
+## BCa
+
+# Results
 
 ```{r KenData2, message=FALSE, warning=FALSE, include=FALSE}
 #skewed data
@@ -128,7 +182,7 @@ diff.means<-function(data0,data1,data2,R){
 
 ```
 
-```{r calling each variable, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE}
+```{r calling each variable, message=FALSE, warning=FALSE, include=FALSE, cache=T}
 HighBP.list<-diff.means(HighBP0,HighBP1,HighBP2,1000)
 
 HighChol.list<-diff.means(HighChol0,HighChol1,HighChol2,1000)
@@ -143,7 +197,7 @@ Income.list<-diff.means(Income0,Income1,Income2,1000)
 
 ```
 
-```{r output, echo=FALSE, message=FALSE, warning=FALSE}
+```{r making kables, message=FALSE, warning=FALSE, include=FALSE}
 no_pre.row1<-c(HighBP.list[[7]],HighBP.list[[2]][["percent"]][[4]],
               HighBP.list[[2]][["percent"]][[5]],
         HighBP.list[[2]][["basic"]][[4]],HighBP.list[[2]][["basic"]][[5]])
@@ -165,7 +219,7 @@ no_pre.row6<-c(Income.list[[7]],Income.list[[2]][["percent"]][[4]],
 no_pre.table<-rbind(no_pre.row1,no_pre.row2,no_pre.row3,no_pre.row4,no_pre.row5,no_pre.row6)
 rownames(no_pre.table)<-c("HighBP","HighChol","BMI","AnyHealthcare","GenHlth","Income")
 colnames(no_pre.table)<-c("mean","low percentile","high percentile","low basic","high basic")
-no_pre.kable<-kable(no_pre.table,caption="no-pre",
+no_pre.kable<-kable(no_pre.table,caption="No Diabetes - Prediabetes",
                     digits=3,align="c")|>
   kable_paper("hover", full_width = F)
 
@@ -193,7 +247,7 @@ pre_diab.table<-rbind(pre_diab.row1,pre_diab.row2,pre_diab.row3,
                       pre_diab.row4,pre_diab.row5,pre_diab.row6)
 rownames(pre_diab.table)<-c("HighBP","HighChol","BMI","AnyHealthcare","GenHlth","Income")
 colnames(pre_diab.table)<-c("mean","low percentile","high percentile","low basic","high basic")
-pre_diab.kable<-kable(pre_diab.table,caption="pre-diab",
+pre_diab.kable<-kable(pre_diab.table,caption="Prediabetes - Diabetes",
                     digits=3,align="c")|>
   kable_paper("hover", full_width = F)
 
@@ -221,17 +275,78 @@ diab_no.table<-rbind(diab_no.row1,diab_no.row2,diab_no.row3,diab_no.row4,
                      diab_no.row5,diab_no.row6)
 rownames(diab_no.table)<-c("HighBP","HighChol","BMI","AnyHealthcare","GenHlth","Income")
 colnames(diab_no.table)<-c("mean","low percentile","high percentile","low basic","high basic")
-diab_no.kable<-kable(diab_no.table,caption="diab-no",
+diab_no.kable<-kable(diab_no.table,caption="Diabetes - No Diabetes",
                     digits=3,align="c")|>
   kable_paper("hover", full_width = F)
 
+```
 
+
+In my results, I found that there was a significant difference in means for most of my combinations. The only variable that didn't have consistent significant difference in means was the AnyHealthcare variable. I also found that the percentile and basic bootstraps were very similar which matched both my assumption and my findings for 0 SE. 
+
+The following are tables showing the difference in means among the combinations of no diabetes, prediabetes, and diabetes for all the variables and for both kinds of bootstrapping:
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 no_pre.kable
 pre_diab.kable
 diab_no.kable
 ```
 
 
+The following are the histograms for each combination of difference in means for:
+
+High Blood Pressure:
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='40%', out.height='30%'}
+HighBP.list[[1]]
+HighBP.list[[3]]
+HighBP.list[[5]]
+```
+
+High Cholesterol:
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='40%', out.height='30%'}
+HighChol.list[[1]]
+HighChol.list[[3]]
+HighChol.list[[5]]
+```
+
+Body Mass Index (BMI):
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='40%', out.height='30%'}
+BMI.list[[1]]
+BMI.list[[3]]
+BMI.list[[5]]
+```
+
+General Health:
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='40%', out.height='30%'}
+GenHlth.list[[1]]
+GenHlth.list[[3]]
+GenHlth.list[[5]]
+```
+
+Any Healthcare (Incdicator):
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='40%', out.height='30%'}
+AnyHealthcare.list[[1]]
+AnyHealthcare.list[[3]]
+AnyHealthcare.list[[5]]
+```
+
+Income:
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='40%', out.height='30%'}
+Income.list[[1]]
+Income.list[[3]]
+Income.list[[5]]
+```
+
+
+
+## Percentile and Basic
+
+## Normal and Studentized
+
+## BCa
+
+# Overall Results
+
 # Methods
 
 # Results
+
