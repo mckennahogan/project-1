@@ -1,0 +1,190 @@
+---
+title: "Jorie Paper"
+author: "Jorie Alvis"
+date: '2022-12-14'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(knitr)
+library(dplyr)
+library(simpleboot)
+library(boot) 
+#library(kableExtra)
+library(patchwork)
+
+set.seed(400)
+```
+
+```{r JorDataInit, echo=TRUE, message=FALSE, warning=FALSE}
+# This data has three classes
+## No-diabetes: Most observations
+## Pre-diabetes: Least observations
+## Diabetes: Response of importance
+data.main = read_csv("../../data/diabetes_012_health_indicators_BRFSS2015.csv")
+data.main = data.main %>% rename("Diabetes"="Diabetes_012")
+
+# Binary Classification
+## Same number of observations for no-diabetes and pre-diabetes/diabetes
+data.balanced = read_csv("../../data/diabetes_binary_5050split_health_indicators_BRFSS2015.csv")
+data.balanced = data.balanced %>% rename("Diabetes"="Diabetes_binary")
+
+# Binary Classification
+## More observations of no-diabetes than pre-diabetes/diabetes
+data.binary = read_csv("../../data/diabetes_binary_health_indicators_BRFSS2015.csv")
+data.binary = data.binary %>% rename("Diabetes"="Diabetes_binary")
+```
+
+## Bootstrap Sampleing
+The code bellow shows the algorithm we used to sample from the data
+
+```{r BootSampleFunc, echo=TRUE, message=FALSE, warning=FALSE}
+bootSample = function(data, m, n) {
+  ret = list()
+  for (i in 1:m) {
+    # Sample of size n for No Diabetes
+    sample.no_d = sample(1:length(data[data$Diabetes == 0,]), size=n, replace=TRUE)
+    data.sample.no_d = data[data$Diabetes == 0,][sample.no_d,]
+    
+    # Sample of size n for Pre-Diabetes
+    sample.pre_d = sample(1:length(data[data$Diabetes == 1,]), size=n, replace=TRUE)
+    data.sample.pre_d = data[data$Diabetes == 1,][sample.pre_d,]
+    
+    # Sample of size n for Diabetes
+    sample.d = sample(1:length(data[data$Diabetes == 2,]), size=n, replace=TRUE)
+    data.sample.d = data[data$Diabetes == 2,][sample.d,]
+    
+    # Row bind the three samples
+    data.sample = rbind(data.sample.no_d, data.sample.pre_d, data.sample.d)
+    
+    ret[[i]] = data.sample
+  }
+  
+  return(ret)
+}
+```
+
+```{r NormalBoot, echo=TRUE, message=FALSE, warning=FALSE}
+normal_boot = function(data_list, factors) {
+  # The returned list sorted by:
+  ## Name of Factor, Class of Diabetes, each sample in the bootstrap
+  ret = list()
+  
+  # For each factor of interest
+  for (col_name in factors) {
+    # List of combined statistics for each class of diabetes and individual sample
+    combo = list()
+    
+    # For each class of diabetes
+    for (d in 0:2) {
+      # The data frame of statistics for each sample
+      data.stats = setNames(data.frame(matrix(ncol = 4, nrow = length(data_list))),
+                            c("mean", "sd", "lower", "upper"))
+      
+      # For each sample
+      for (i in 1:length(data_list)) {
+        data.sample = data_list[[i]] %>% filter(Diabetes==d) %>% pull(col_name)
+        
+        data.mean = mean(data.sample)
+        data.sd = sd(data.sample)
+        
+        delta = pnorm((1-0.95/2))*data.sd
+        data.lower = data.mean-delta
+        data.upper = data.mean+delta
+        
+        data.stats[i,] = c(data.mean, data.sd, data.lower, data.upper)
+      }
+      # Calculate the statistics across all the samples
+      theta.hat = mean(data.stats$mean)
+      theta.se = sd(data.stats$mean)
+      
+      delta = pnorm((1-0.95/2))*theta.se
+      theta.lower = theta.hat-delta
+      theta.upper = theta.hat+delta
+      
+      data.stats[length(data_list)+1,] = c(theta.hat, theta.se, theta.lower, theta.upper)
+      
+      combo[[d+1]] = data.stats
+    }
+    ret[[col_name]] = combo
+  }
+  return(ret)
+}
+```
+
+```{r StudentTBoot, message=FALSE, warning=FALSE, include=FALSE}
+student_t_boot = function(data_list, factors) {
+  # For each factor of interest
+  ret = list()
+  for (col_name in factors) {
+    # For no, pre, and diabetes
+    combo = list()
+    for (d in 0:2) {
+      # Theta hat for the whole data set
+      data.theta_hat = mean(data.main %>% filter(Diabetes==d) %>% pull(col_name))
+      
+      data.stats = setNames(data.frame(matrix(ncol = 5, nrow = length(data_list))),
+                            c("mean", "se", "t_stat", "lower", "upper"))
+      # For each sample
+      for (i in 1:length(data_list)) {
+        data.sample = data_list[[i]] %>% filter(Diabetes==d) %>% pull(col_name)
+        
+        # re-sampled data
+        data.resample = data.frame(matrix(ncol=length(data.sample)+1, nrow=length(data_list)))
+        for (r in 1:length(data_list)){
+          resample = sample(data.sample, size=length(data.sample), replace=TRUE)
+          data.resample[r,] = cbind(resample, mean(resample))
+        }
+        data.mean = mean(data.sample)
+        data.se = sd(data.resample[,length(data.sample)+1])
+        
+        data.t_stat = (data.mean-data.theta_hat)/data.se
+        
+        data.stats[i,] = c(data.mean, data.se, data.t_stat, NA, NA)
+      }
+      theta.hat = mean(data.stats$mean)
+      theta.se = sd(data.stats$mean)
+      
+      theta.t_stat = (theta.hat-data.theta_hat)/theta.se
+      
+      theta.lower = theta.hat-abs(quantile(data.stats$t_stat, probs=c(0.05/2))*theta.se)
+      theta.upper = theta.hat+abs(quantile(data.stats$t_stat, probs=c(1-0.05/2))*theta.se)
+      
+      data.stats[length(data_list)+1,] = c(theta.hat, theta.se, theta.t_stat,
+                                           theta.lower, theta.upper)
+      
+      combo[[d+1]] = data.stats
+    }
+    ret[[col_name]] = combo
+  }
+  return(ret)
+}
+```
+
+```{r JorAnalysisInit, message=FALSE, warning=FALSE, cache=TRUE, include=FALSE}
+# The "m"s we are testing
+m_list = c(10,30,50,100,250)
+# The "n"s we are testing
+n_list = c(10,25,75,125,250)
+# Factors of interest
+factors_list = c("Income", "BMI", "GenHlth", "HighBP", "AnyHealthcare")
+
+ALL_DATA_norm = list(list(), list(), list(), list(), list())
+ALL_DATA_stud = list(list(), list(), list(), list(), list())
+BOOT_DATA_norm = list(list(), list(), list(), list(), list())
+BOOT_DATA_stud = list(list(), list(), list(), list(), list())
+for (i in 1:5) {
+  m = m_list[i]
+  for (j in 1:5) {
+    n = n_list[j]
+    
+    BOOT_DATA_norm[[i]][[j]] = bootSample(data.main, m, n)
+    BOOT_DATA_stud[[i]][[j]] = bootSample(data.main, m, n)
+    ALL_DATA_norm[[i]][[j]] = normal_boot(BOOT_DATA_norm[[i]][[j]], factors_list)
+    ALL_DATA_stud[[i]][[j]] = student_t_boot(BOOT_DATA_stud[[i]][[j]], factors_list)
+  }
+}
+```
